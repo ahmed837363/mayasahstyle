@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="contact">اتصل بنا - مياسه ستيل</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="contact.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="container">
+                <div class="header-top">
+                    <div class="logo">
+                        <img src="images/logo.png" alt="Logo">
+                        <h1 data-translate="storeName">مياسه ستيل</h1>
+                    </div>
+                    <div class="header-actions">
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="ar">العربية</button>
+                            <button class="lang-btn" data-lang="en">English</button>
+                        </div>
+                        <div class="cart-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">0</span>
+                        </div>
+                    </div>
+                </div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="index.html" data-translate="home">الرئيسية</a></li>
+                        <li><a href="products.html" data-translate="products">المنتجات</a></li>
+                        <li><a href="cart.html" data-translate="cart">عربة التسوق</a></li>
+                        <li><a href="contact.html" data-translate="contact">اتصل بنا</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Contact Section -->
+        <section class="contact-section">
+            <div class="container">
+                <h2 class="section-title" data-translate="contact">اتصل بنا</h2>
+                
+                <!-- Toggle Buttons -->
+                <div class="contact-toggle">
+                    <button class="toggle-btn active" data-mode="chatbot" data-translate="chatWithBot">
+                        <i class="fas fa-robot"></i>
+                        <span>تحدث مع المساعد الذكي</span>
+                    </button>
+                    <button class="toggle-btn" data-mode="contact" data-translate="contactInfo">
+                        <i class="fas fa-address-book"></i>
+                        <span>معلومات التواصل</span>
+                    </button>
+                </div>
+                
+                <!-- Chatbot Interface -->
+                <div class="contact-content" id="chatbotContent">
+                    <div class="chatbot-container">
+                        <div class="chatbot-header">
+                            <div class="chatbot-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="chatbot-info">
+                                <h3 data-translate="mayasahAssistant">مساعد مياسه الذكي</h3>
+                                <span class="status" data-translate="online">متصل الآن</span>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message bot-message">
+                                <div class="message-content">
+                                    <p data-translate="welcomeMessage">مرحباً! أنا مساعد مياسه الذكي. كيف يمكنني مساعدتك اليوم؟</p>
+                                </div>
+                                <div class="message-time">الآن</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-questions">
+                            <button class="quick-question" data-question="products">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span data-translate="askProducts">المنتجات المتوفرة</span>
+                            </button>
+                            <button class="quick-question" data-question="shipping">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span data-translate="askShipping">معلومات الشحن</span>
+                            </button>
+                            <button class="quick-question" data-question="sizes">
+                                <i class="fas fa-ruler"></i>
+                                <span data-translate="askSizes">المقاسات المتوفرة</span>
+                            </button>
+                            <button class="quick-question" data-question="contact">
+                                <i class="fas fa-phone"></i>
+                                <span data-translate="askContact">التواصل المباشر</span>
+                            </button>
+                        </div>
+                        
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="اكتب رسالتك هنا..." data-translate="typeMessage">
+                            <button id="sendMessage" class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Information Interface -->
+                <div class="contact-content hidden" id="contactContent">
+                    <div class="contact-grid">
+                        <!-- Contact Information -->
+                        <div class="contact-info-card">
+                            <h3 data-translate="contactInfo">معلومات التواصل</h3>
+                            
+                            <div class="contact-items">
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div class="contact-details">
+                                        <span class="label" data-translate="address">العنوان</span>
+                                        <span class="value" data-translate="contactLocation">جدة، المملكة العربية السعودية</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div class="contact-details">
+                                        <span class="label" data-translate="phone">الهاتف</span>
+                                        <span class="value">+966 50 123 4567</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div class="contact-details">
+                                        <span class="label" data-translate="email">البريد الإلكتروني</span>
+                                        <span class="value" data-translate="contactEmail">mayasahstyle@gmail.com</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div class="contact-details">
+                                        <span class="label" data-translate="workingHours">ساعات العمل</span>
+                                        <span class="value" data-translate="workingHoursText">9 صباحاً - 10 مساءً</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-actions">
+                                <a href="https://wa.me/966501234567" target="_blank" class="whatsapp-contact">
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span data-translate="contactWhatsapp">تواصل عبر واتساب</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Form -->
+                        <div class="contact-form-card">
+                            <h3 data-translate="sendMessage">أرسل لنا رسالة</h3>
+                            
+                            <form class="contact-form" id="contactForm">
+                                <div class="form-group">
+                                    <label for="name" data-translate="name">الاسم</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="email" data-translate="email">البريد الإلكتروني</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="phone" data-translate="phone">رقم الهاتف</label>
+                                    <input type="tel" id="phone" name="phone" placeholder="Phone Number (optional)" data-translate-placeholder="phoneOptional">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="subject" data-translate="subject">الموضوع</label>
+                                    <select id="subject" name="subject" required>
+                                        <option value="" data-translate="selectSubject">اختر الموضوع</option>
+                                        <option value="general" data-translate="generalInquiry">استفسار عام</option>
+                                        <option value="order" data-translate="orderInquiry">استفسار عن الطلب</option>
+                                        <option value="product" data-translate="productInquiry">استفسار عن المنتج</option>
+                                        <option value="complaint" data-translate="complaint">شكوى</option>
+                                        <option value="suggestion" data-translate="suggestion">اقتراح</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="message" data-translate="message">الرسالة</label>
+                                    <textarea id="message" name="message" rows="5" required placeholder="Type your message here..." data-translate-placeholder="typeYourMessage"></textarea>
+                                </div>
+                                
+                                <button type="submit" class="submit-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span data-translate="sendMessage">إرسال الرسالة</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <!-- Arabic Footer -->
+            <div class="footer-content enhanced-footer footer-ar">
+                <div class="footer-column footer-left">
+                    <div>
+                        <p><span data-translate="contactLocation">جدة، المملكة العربية السعودية</span><br>هاتف: +966 50 123 4567<br>البريد: <span data-translate="contactEmail">mayasahstyle@gmail.com</span></p>
+                        <p><span data-translate="workingHours">ساعات العمل</span>: <span data-translate="workingHoursText">9 صباحاً - 10 مساءً</span></p>
+                        <div style="margin: 20px 0; text-align: center;">
+                            <a href="https://wa.me/966501234567" target="_blank" class="whatsapp-btn">
+                                <i class="fab fa-whatsapp" style="font-size:1.25em;"></i>
+                                <span class="number">+966 50 123 4567</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-column footer-center">
+                    <div class="footer-tagline" style="text-align:right;">مياسه ستيل - أناقة متجددة كل يوم</div>
+                    <div class="decorative-line" style="width:50px;height:2px;background-color:#C6A969;border-radius:2px;margin:18px 0 16px 0;opacity:1;"></div>
+                    <div class="social-icons vertical-social">
+                        <a href="#" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i><span>انستقرام</span></a>
+                        <a href="#" class="social-icon" title="Twitter"><i class="fab fa-twitter"></i><span>تويتر</span></a>
+                        <a href="#" class="social-icon" title="Snapchat"><i class="fab fa-snapchat"></i><span>سناب شات</span></a>
+                        <a href="#" class="social-icon" title="TikTok"><i class="fab fa-tiktok"></i><span>تيك توك</span></a>
+                    </div>
+                </div>
+                <div class="footer-column footer-right">
+                    <h3>روابط سريعة</h3>
+                    <ul class="footer-links footer-links-grid">
+                        <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+                        <li><a href="products.html"><i class="fas fa-shopping-bag"></i> المنتجات</a></li>
+                        <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> عربة التسوق</a></li>
+                        <li><a href="contact.html"><i class="fas fa-envelope"></i> اتصل بنا</a></li>
+                        <li><a href="about.html"><i class="fas fa-info-circle"></i> من نحن</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt"></i> سياسة الخصوصية</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> الشروط والأحكام</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- English Footer -->
+            <div class="footer-content enhanced-footer footer-en" style="display:none;">
+                <div class="footer-column footer-left">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links footer-links-grid">
+                        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="products.html"><i class="fas fa-shopping-bag"></i> Products</a></li>
+                        <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+                        <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                        <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column footer-center">
+                    <div class="footer-tagline" style="text-align:left;">Mayasah Style - Renewed Elegance Every Day</div>
+                    <div class="decorative-line" style="width:50px;height:2px;background-color:#C6A969;border-radius:2px;margin:18px 0 16px 0;opacity:1;"></div>
+                    <div class="social-icons vertical-social">
+                        <a href="#" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i><span>Instagram</span></a>
+                        <a href="#" class="social-icon" title="Twitter"><i class="fab fa-twitter"></i><span>Twitter</span></a>
+                        <a href="#" class="social-icon" title="Snapchat"><i class="fab fa-snapchat"></i><span>Snapchat</span></a>
+                        <a href="#" class="social-icon" title="TikTok"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
+                    </div>
+                </div>
+                <div class="footer-column footer-right">
+                    <div>
+                        <p><span data-translate="contactLocation">Jeddah, Saudi Arabia</span><br>Phone: +966 50 123 4567<br>Email: <span data-translate="contactEmail">mayasahstyle@gmail.com</span></p>
+                        <p><span data-translate="workingHours">Working Hours</span>: <span data-translate="workingHoursText">9am - 10pm</span></p>
+                        <div style="margin: 20px 0; text-align: center;">
+                            <a href="https://wa.me/966501234567" target="_blank" class="whatsapp-btn">
+                                <i class="fab fa-whatsapp" style="font-size:1.25em;"></i>
+                                <span class="number">+966 50 123 4567</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Copyright at the very bottom of the footer -->
+            <div class="footer-bottom" style="margin-top:0;">
+                <p data-translate="copyright">جميع الحقوق محفوظة © 2025 مياسه ستيل | تصميم وتطوير <a href="https://mayasahstyle.com" style="color:#fff;text-decoration:underline;">Mayasah Style</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="contact.js"></script>
+    <script src="chatbot.js"></script>
+    <script>
+        // Ensure placeholder is set correctly on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('phone');
+            const currentLang = document.documentElement.lang || 'ar';
+            const translations = window.translations || {};
+            
+            if (phoneInput && translations[currentLang] && translations[currentLang]['phoneOptional']) {
+                phoneInput.setAttribute('placeholder', translations[currentLang]['phoneOptional']);
+            }
+        });
+    </script>
+</body>
+</html> 

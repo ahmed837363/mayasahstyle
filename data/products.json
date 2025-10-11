@@ -1,0 +1,57 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name_ar": "عباية سوداء كلاسيكية",
+      "name_en": "Classic Black Abaya",
+      "image": "images/abaya1.jpg",
+      "price": 299,
+      "discount": 15,
+      "initial_stock": 50,
+      "current_stock": 50,
+      "sku": "ABY-001",
+      "description_ar": "عباية سوداء كلاسيكية أنيقة مصنوعة من أجود الأقمشة",
+      "description_en": "Elegant classic black abaya made from premium fabrics"
+    },
+    {
+      "id": "2",
+      "name_ar": "عباية مطرزة بالخيط الذهبي",
+      "name_en": "Gold Thread Embroidered Abaya",
+      "image": "images/abaya2.jpg",
+      "price": 449,
+      "discount": 0,
+      "badge": "new",
+      "initial_stock": 30,
+      "current_stock": 30,
+      "sku": "ABY-002",
+      "description_ar": "عباية فاخرة مطرزة بالخيط الذهبي بتصميم راقي",
+      "description_en": "Luxurious abaya with gold thread embroidery and elegant design"
+    },
+    {
+      "id": "3",
+      "name_ar": "عباية كحلي بتصميم عصري",
+      "name_en": "Modern Navy Blue Abaya",
+      "image": "images/abaya3.jpg",
+      "price": 349,
+      "discount": 0,
+      "initial_stock": 40,
+      "current_stock": 40,
+      "sku": "ABY-003",
+      "description_ar": "عباية كحلي عصرية مناسبة للمناسبات اليومية",
+      "description_en": "Modern navy blue abaya perfect for everyday occasions"
+    },
+    {
+      "id": "4",
+      "name_ar": "عباية رمادية بتفاصيل فضية",
+      "name_en": "Grey Abaya with Silver Details",
+      "image": "images/abaya4.jpg",
+      "price": 399,
+      "discount": 10,
+      "initial_stock": 35,
+      "current_stock": 35,
+      "sku": "ABY-004",
+      "description_ar": "عباية رمادية أنيقة مزينة بتفاصيل فضية راقية",
+      "description_en": "Elegant grey abaya adorned with classy silver details"
+    }
+  ]
+}

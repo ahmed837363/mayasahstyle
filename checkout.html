@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="checkout">إتمام الشراء - مياسه ستيل</title>
+    <link rel="stylesheet" href="styles.css?v=1760013761">
+    <link rel="stylesheet" href="index.css?v=1760013761">
+    <link rel="stylesheet" href="checkout-style.css?v=1760013761">
+  <style>
+    /* CRITICAL: Mobile-first responsive fixes with highest priority */
+    * {
+        box-sizing: border-box !important;
+    }
+    
+    body, html {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Inline override to ensure progress step styling applies despite cached/external rules */
+    .checkout-progress { justify-content: center !important; }
+    .progress-step { min-width: 0 !important; text-align: center !important; }
+    .progress-step:not(:last-child)::after { left: calc(50% + 26px) !important; width: calc(100% - 52px) !important; }
+    .step-circle { width:48px !important; height:48px !important; }
+    .step-label { max-width:160px !important; white-space: normal !important; }
+    
+    /* Checkout layout - mobile responsive */
+    .checkout-section { 
+        display:flex !important; 
+        justify-content:center !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        padding: 30px 8px 100px 8px !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    
+    .checkout-container {
+        width: 100% !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    .checkout-container > .checkout-grid { 
+        width:100% !important; 
+        max-width:100% !important; 
+        margin:0 !important; 
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Form sections - CRITICAL: prevent overflow */
+    .checkout-form-section,
+    .order-summary-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 20px 12px !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* All form inputs must fit */
+    input, select, textarea, button {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Payment options - reduce padding */
+    .payment-label {
+        padding: 12px 8px !important;
+        gap: 8px !important;
+        box-sizing: border-box !important;
+    }
+    
+    .payment-icon {
+        width: 36px !important;
+        height: 36px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* Order items - prevent overflow */
+    .order-item-compact {
+        padding: 10px 6px !important;
+        gap: 6px !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .item-image-compact {
+        width: 50px !important;
+        height: 50px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .item-info-compact {
+        flex: 1 !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .item-title-compact {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Card row */
+    .card-row { display:flex !important; gap:12px !important; align-items:flex-start !important; }
+    .card-expiry { flex:1 1 auto !important; }
+    .card-cvv { width:140px !important; flex:0 0 140px !important; }
+    [dir="rtl"] .card-row { direction: rtl !important; }
+    [dir="rtl"] .card-expiry { text-align:right !important; }
+    [dir="rtl"] .card-cvv { margin-inline-start:0 !important; margin-inline-end:0 !important; }
+    
+    /* Mobile specific - even tighter */
+    @media (max-width: 430px) {
+        .checkout-section {
+            padding: 20px 6px 100px 6px !important;
+        }
+        
+        .checkout-form-section,
+        .order-summary-card {
+            padding: 16px 10px !important;
+        }
+        
+        .payment-label {
+            padding: 10px 6px !important;
+        }
+        
+        .order-item-compact {
+            padding: 8px 4px !important;
+        }
+    }
+  </style>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- debug inline CSS removed -->
+</head>
+<body>
+
+
+
+    <main class="main-content">
+      <!-- Header -->
+      <header>
+        <div class="container">
+          <div class="header-top">
+            <div class="logo">
+              <img src="images/logo.png" alt="Logo">
+              <h1 data-translate="storeName">مياسه ستيل</h1>
+            </div>
+            <div class="header-actions">
+              <div class="lang-switcher">
+                <button class="lang-btn" data-lang="ar">العربية</button>
+                <button class="lang-btn" data-lang="en">English</button>
+              </div>
+              <div class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
+              </div>
+            </div>
+          </div>
+          <nav>
+            <ul class="nav-menu">
+              <li><a href="index.html" data-translate="home">الرئيسية</a></li>
+              <li><a href="products.html" data-translate="products">المنتجات</a></li>
+              <li><a href="cart.html" data-translate="cart">عربة التسوق</a></li>
+              <li><a href="contact.html" data-translate="contact">اتصل بنا</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <!-- Checkout Section -->
+      <section class="checkout-section">
+        <div class="checkout-container">
+          <!-- Modern Header -->
+          <div class="checkout-header">
+            <h1 class="checkout-title" data-translate="checkout">إتمام الشراء</h1>
+            <p class="checkout-subtitle" data-translate="checkoutSubtitle">أكمل طلبك باتباع الخطوات التالية</p>
+          </div>
+
+          <!-- Progress Steps -->
+          <div class="checkout-progress">
+            <div class="progress-step active">
+              <div class="step-circle">1</div>
+              <span class="step-label" data-translate="shippingInfo">معلومات الشحن</span>
+            </div>
+            <div class="progress-step active">
+              <div class="step-circle">2</div>
+              <span class="step-label" data-translate="paymentInfo">معلومات الدفع</span>
+            </div>
+            <div class="progress-step">
+              <div class="step-circle">3</div>
+              <span class="step-label" data-translate="confirmOrder">تأكيد الطلب</span>
+            </div>
+          </div>
+          
+          <!-- Main Content Grid -->
+          <div class="checkout-grid">
+            <!-- Left Side: Forms -->
+            <div>
+              <!-- Shipping Information -->
+              <div class="checkout-form-section">
+                <div class="section-header">
+                  <div class="section-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                  </div>
+                  <h2 class="section-title" data-translate="shippingInfo">معلومات الشحن</h2>
+                </div>
+                
+                <form class="form-grid" id="checkoutForm">
+                  <div class="form-group">
+                    <label class="form-label" for="fullName">
+                      <span data-translate="fullName">الاسم الكامل</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" id="fullName" name="fullName" class="form-input" placeholder="أدخل اسمك الكامل" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="phone">
+                      <span data-translate="phone">رقم الجوال</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="+966 5X XXX XXXX" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="email">
+                      <span data-translate="email">البريد الإلكتروني</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="city">
+                      <span data-translate="city">المدينة</span>
+                      <span class="required">*</span>
+                    </label>
+                    <select id="city" name="city" class="form-select" required>
+                      <option value="" data-translate="selectCity">اختر المدينة</option>
+                      <option value="riyadh">الرياض</option>
+                      <option value="jeddah">جدة</option>
+                      <option value="dammam">الدمام</option>
+                      <option value="mecca">مكة</option>
+                      <option value="medina">المدينة</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label class="form-label" for="address">
+                      <span data-translate="address">العنوان التفصيلي</span>
+                      <span class="required">*</span>
+                    </label>
+                    <textarea id="address" name="address" class="form-textarea" placeholder="الحي، الشارع، رقم المنزل..." required></textarea>
+                  </div>
+
+                  <div class="form-group full-width detect-location-row">
+                    <button id="detectLocationBtn" type="button" class="btn-secondary">
+                      <i class="fas fa-map-marker-alt"></i>
+                      <span data-translate="useMyLocation">استخدم موقعي</span>
+                    </button>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="zip">
+                      <span data-translate="zip">الرمز البريدي</span>
+                    </label>
+                    <input type="text" id="zip" name="zip" class="form-input" placeholder="12345">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="notes">
+                      <span data-translate="orderNotes">ملاحظات الطلب</span>
+                    </label>
+                    <input type="text" id="notes" name="notes" class="form-input" placeholder="ملاحظات إضافية (اختياري)">
+                  </div>
+                </form>
+              </div>
+
+              <!-- Payment Methods -->
+              <div class="checkout-form-section" style="margin-top: 20px;">
+                <div class="section-header">
+                  <div class="section-icon">
+                    <i class="fas fa-credit-card"></i>
+                  </div>
+                  <h2 class="section-title" data-translate="paymentMethod">طريقة الدفع</h2>
+                </div>
+
+                <div class="payment-methods">
+                  <div class="payment-option">
+                    <input type="radio" id="mada" name="paymentMethod" value="mada" class="payment-radio" checked>
+                    <label for="mada" class="payment-label">
+                      <div class="payment-icon">
+                        <i class="fas fa-credit-card"></i>
+                      </div>
+                      <div class="payment-info">
+                        <div class="payment-name" data-translate="madaCard">بطاقة مدى</div>
+                        <div class="payment-desc" data-translate="madaDesc">بطاقة مدى المحلية</div>
+                      </div>
+                      <div class="payment-check"></div>
+                    </label>
+                  </div>
+
+                  <div class="payment-option">
+                    <input type="radio" id="visa" name="paymentMethod" value="visa" class="payment-radio">
+                    <label for="visa" class="payment-label">
+                      <div class="payment-icon">
+                        <i class="fab fa-cc-visa"></i>
+                      </div>
+                      <div class="payment-info">
+                        <div class="payment-name" data-translate="visaCard">فيزا / ماستركارد</div>
+                        <div class="payment-desc" data-translate="visaDesc">بطاقات دولية</div>
+                      </div>
+                      <div class="payment-check"></div>
+                    </label>
+                  </div>
+
+                  <div class="payment-option">
+                    <input type="radio" id="applepay" name="paymentMethod" value="applepay" class="payment-radio">
+                    <label for="applepay" class="payment-label">
+                      <div class="payment-icon">
+                        <i class="fab fa-apple-pay"></i>
+                      </div>
+                      <div class="payment-info">
+                        <div class="payment-name" data-translate="applePay">Apple Pay</div>
+                        <div class="payment-desc" data-translate="applePayDesc">الدفع السريع</div>
+                      </div>
+                      <div class="payment-check"></div>
+                    </label>
+                  </div>
+
+                  <div class="payment-option">
+                    <input type="radio" id="stcpay" name="paymentMethod" value="stcpay" class="payment-radio">
+                    <label for="stcpay" class="payment-label">
+                      <div class="payment-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                      </div>
+                      <div class="payment-info">
+                        <div class="payment-name" data-translate="stcPay">STC Pay</div>
+                        <div class="payment-desc" data-translate="stcPayDesc">المحفظة الرقمية</div>
+                      </div>
+                      <div class="payment-check"></div>
+                    </label>
+                  </div>
+
+                  <div class="payment-option">
+                    <input type="radio" id="cod" name="paymentMethod" value="cod" class="payment-radio">
+                    <label for="cod" class="payment-label">
+                      <div class="payment-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                      </div>
+                      <div class="payment-info">
+                        <div class="payment-name" data-translate="cashOnDelivery">الدفع عند الاستلام</div>
+                        <div class="payment-desc" data-translate="codDesc">نقداً عند التوصيل</div>
+                      </div>
+                      <div class="payment-check"></div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Card inputs removed to prevent collecting card data on-site. Hosted checkout will be used for card methods. -->
+
+                <!-- STC Pay form (mobile number) -->
+                <div id="stcPayForm" class="card-details hidden">
+                  <div class="form-group">
+                    <label class="form-label" for="stcPhone"><span data-translate="stcPhone">رقم STC Pay</span></label>
+                    <input id="stcPhone" name="stcPhone" class="form-input" placeholder="05X XXX XXXX" inputmode="tel">
+                  </div>
+                  <div class="form-group">
+                      <small data-translate="stcPayInfo">ستتلقى رابط الدفع على رقم STC Pay أعلاه.</small>
+                    </div>
+                </div>
+
+                <!-- Apple Pay info / CTA -->
+                <div id="applePayInfo" class="card-details hidden">
+                  <div class="form-group">
+                    <p>Apple Pay will open on supported devices. Make sure your device supports Apple Pay and you have a card added to Wallet.</p>
+                  </div>
+                </div>
+
+                <div class="security-badge">
+                  <div class="security-icon">
+                    <i class="fas fa-shield-alt"></i>
+                  </div>
+                  <div class="security-text" data-translate="paymentSecurity">
+                    معاملات آمنة ومشفرة بالكامل
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Order Summary -->
+            <div class="order-summary-card">
+              <div class="summary-header">
+                <h3 class="summary-title" data-translate="orderSummary">ملخص الطلب</h3>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="items-count" id="itemsCount">1 عنصر</div>
+                  <button class="toggle-summary" type="button">
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="order-items-compact" id="orderItemsList">
+                <!-- Sample item - will be populated by JS -->
+                <div class="order-item-compact">
+                  <div class="item-image-compact">
+                    <!-- inline dimensions + style as ultimate fallback to prevent large images -->
+                    <img src="images/abaya1.jpg" alt="Product" width="28" height="28" style="width:28px;height:28px;max-width:28px;object-fit:cover;display:block;">
+                  </div>
+                  <div class="item-info-compact">
+                    <div class="item-meta-row">
+                      <p class="item-name">عباية فاخرة</p>
+                      <div class="item-qty-pill">x1</div>
+                    </div>
+                    <div class="item-details-row">
+                      <span class="item-size-badge">M</span>
+                    </div>
+                  </div>
+                  <div class="item-price-compact small">450 ر.س</div>
+                </div>
+              </div>
+
+              <div class="summary-calculations">
+                <div class="summary-row">
+                  <span class="summary-label" data-translate="subtotal">المجموع الفرعي</span>
+                  <span class="summary-value subtotal-amount">450 ر.س</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label" data-translate="shipping">الشحن</span>
+                  <span class="summary-value shipping-amount">30 ر.س</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label" data-translate="vat">ضريبة القيمة المضافة (15%)</span>
+                  <span class="summary-value vat-amount">72 ر.س</span>
+                </div>
+                <div class="summary-row total">
+                  <span class="summary-label" data-translate="total">الإجمالي</span>
+                  <span class="summary-value total-amount">552 ر.س</span>
+                </div>
+              </div>
+
+              <div class="checkout-actions">
+                <button type="submit" class="btn-primary confirm-order-btn" form="checkoutForm">
+                  <i class="fas fa-lock"></i>
+                  <span data-translate="completeOrder">إتمام الطلب</span>
+                </button>
+                <button type="button" class="btn-secondary" onclick="window.location.href='cart.html'">
+                  <span data-translate="backToCart">العودة للسلة</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+
+    </main>
+
+<!-- Footer (moved outside main for sticky effect) -->
+<footer>
+  <div class="container">
+    <!-- Arabic Footer -->
+    <div class="footer-content enhanced-footer footer-ar">
+        <div class="footer-column footer-left">
+          <div>
+            <p><span data-translate="contactLocation">جدة، المملكة العربية السعودية</span><br>هاتف: +966 50 123 4567<br>البريد: <span data-translate="contactEmail">mayasahstyle@gmail.com</span></p>
+            <p><span data-translate="workingHours">ساعات العمل</span>: <span data-translate="workingHoursText">9 صباحاً - 10 مساءً</span></p>
+            <div style="margin: 20px 0; text-align: center;">
+              <a href="https://wa.me/966501234567" target="_blank" class="whatsapp-btn">
+                <i class="fab fa-whatsapp" style="font-size:1.25em;"></i>
+                <span class="number">+966 50 123 4567</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-column footer-center">
+          <div class="footer-tagline" style="text-align:right;">مياسه ستيل - أناقة متجددة كل يوم</div>
+          <div class="decorative-line" style="width:50px;height:2px;background-color:#C6A969;border-radius:2px;margin:18px 0 16px 0;opacity:1;"></div>
+          <div class="social-icons vertical-social">
+            <a href="#" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i><span>انستقرام</span></a>
+            <a href="#" class="social-icon" title="Twitter"><i class="fab fa-twitter"></i><span>تويتر</span></a>
+            <a href="#" class="social-icon" title="Snapchat"><i class="fab fa-snapchat"></i><span>سناب شات</span></a>
+            <a href="#" class="social-icon" title="TikTok"><i class="fab fa-tiktok"></i><span>تيك توك</span></a>
+          </div>
+        </div>
+        <div class="footer-column footer-right">
+          <h3>روابط سريعة</h3>
+          <ul class="footer-links footer-links-grid">
+            <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+            <li><a href="products.html"><i class="fas fa-shopping-bag"></i> المنتجات</a></li>
+            <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> عربة التسوق</a></li>
+            <li><a href="contact.html"><i class="fas fa-envelope"></i> اتصل بنا</a></li>
+            <li><a href="about.html"><i class="fas fa-info-circle"></i> من نحن</a></li>
+            <li><a href="privacy.html"><i class="fas fa-shield-alt"></i> سياسة الخصوصية</a></li>
+            <li><a href="terms.html"><i class="fas fa-file-contract"></i> الشروط والأحكام</a></li>
+          </ul>
+        </div>
+      </div>
+    <!-- English Footer -->
+    <div class="footer-content enhanced-footer footer-en" style="display:none;">
+        <div class="footer-column footer-left">
+          <h3>Quick Links</h3>
+          <ul class="footer-links footer-links-grid">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="products.html"><i class="fas fa-shopping-bag"></i> Products</a></li>
+            <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+            <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+            <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+            <li><a href="privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+            <li><a href="terms.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+          </ul>
+        </div>
+        <div class="footer-column footer-center">
+          <div class="footer-tagline" style="text-align:left;">Mayasah Style - Renewed Elegance Every Day</div>
+          <div class="decorative-line" style="width:50px;height:2px;background-color:#C6A969;border-radius:2px;margin:18px 0 16px 0;opacity:1;"></div>
+          <div class="social-icons vertical-social">
+            <a href="#" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i><span>Instagram</span></a>
+            <a href="#" class="social-icon" title="Twitter"><i class="fab fa-twitter"></i><span>Twitter</span></a>
+            <a href="#" class="social-icon" title="Snapchat"><i class="fab fa-snapchat"></i><span>Snapchat</span></a>
+            <a href="#" class="social-icon" title="TikTok"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
+          </div>
+        </div>
+        <div class="footer-column footer-right">
+          <div>
+            <p><span data-translate="contactLocation">Jeddah, Saudi Arabia</span><br>Phone: +966 50 123 4567<br>Email: <span data-translate="contactEmail">mayasahstyle@gmail.com</span></p>
+            <p><span data-translate="workingHours">Working Hours</span>: <span data-translate="workingHoursText">9am - 10pm</span></p>
+            <div style="margin: 20px 0; text-align: center;">
+              <a href="https://wa.me/966501234567" target="_blank" class="whatsapp-btn">
+                <i class="fab fa-whatsapp" style="font-size:1.25em;"></i>
+                <span class="number">+966 50 123 4567</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- Copyright at the very bottom of the footer -->
+    <div class="footer-bottom" style="margin-top:0;">
+      <p data-translate="copyright">جميع الحقوق محفوظة © 2025 مياسه ستيل | تصميم وتطوير <a href="https://mayasahstyle.com" style="color:#fff;text-decoration:underline;">Mayasah Style</a></p>
+    </div>
+  </div>
+</footer>
+
+    <script src="script.js?v=1760000941"></script>
+    <script src="checkout.js"></script>
+  <script>
+    console.log('checkout.html (v6) loaded — ' + new Date().toISOString());
+    // Set progress overlay width based on active steps
+    (function setProgressOverlay(){
+      try{
+        const container = document.querySelector('.checkout-progress');
+        if(!container) return;
+        const steps = container.querySelectorAll('.progress-step');
+        const total = steps.length;
+        const active = container.querySelectorAll('.progress-step.active').length;
+        const pct = total>1 ? ((active-1)/(total-1))*100 : 0;
+        const overlay = container;
+        // find computed ::after via setting a CSS variable
+        overlay.style.setProperty('--progress-active-pct', pct + '%');
+        // apply directly to element for best support
+        const afterStyle = container.querySelector('style[data-progress-overlay]');
+        // set width via inline style on container's pseudo using a custom property
+        container.style.setProperty('--progress-active-width', pct + '%');
+      }catch(e){console.warn(e)}
+    })();
+  </script>
+</body>
+</html>

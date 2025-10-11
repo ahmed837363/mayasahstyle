@@ -1,0 +1,15 @@
+name = "mayasah-worker"
+main = "src/index.js"
+compatibility_date = "2025-10-10"
+workers_dev = false
+
+[build]
+command = "npm install"
+
+[[kv_namespaces]]
+binding = "ORDERS"
+id = "be33be6816cc477fbdc456103cc59ce0" # created in Cloudflare dashboard
+
+[[routes]]
+pattern = "mayasahstyle.me/api/*"
+zone_id = "87caff685919068282504aff7a5138e6"

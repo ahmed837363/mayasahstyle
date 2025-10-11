@@ -1,0 +1,11 @@
+{
+  "name": "mayasah-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker to accept and store orders for Mayasah Style",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "dependencies": {}
+}

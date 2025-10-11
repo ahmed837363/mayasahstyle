@@ -1,0 +1,12 @@
+# Ignore backend folder (deployed separately to Cloudflare Workers)
+backend/
+
+# Ignore VS Code extensions
+*.vsix
+
+# Ignore documentation files
+*.md
+
+# Ignore system files
+.DS_Store
+Thumbs.db
