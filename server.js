@@ -32,37 +32,34 @@ if (!fs.existsSync(CONSENTS_FILE)) {
   try { fs.writeFileSync(CONSENTS_FILE, JSON.stringify([]), 'utf8'); } catch (e) { console.warn('Could not create consents file', e); }
 }
 
-// Email transporter: prefer environment variables, fallback to the existing config for development
-const EMAIL_USER = process.env.EMAIL_USER || 'mayasahstyle@gmail.com';
-const EMAIL_PASS = process.env.EMAIL_PASS || 'cdpu mwwf ecww cdap';
+// Email transporter: Using Brevo (Sendinblue) SMTP - 300 emails/day FREE
+const EMAIL_USER = process.env.EMAIL_USER || '990b3a002@smtp-brevo.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || '3GwCBqmFK7avMWxL';
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'mayasahstyle@gmail.com'; // Your verified sender
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false, // Use TLS
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
-  },
-  pool: true, // Use connection pooling
-  maxConnections: 1, // Limit to 1 connection at a time (more reliable)
-  maxMessages: 100, // Max messages per connection
-  rateDelta: 1000, // Time between messages (1 second)
-  rateLimit: 3 // Max 3 messages per rateDelta
+  }
 });
 
-// Verify Gmail connection on startup
-console.log('🔍 Testing Gmail connection...');
-console.log('📧 Email account configured:', EMAIL_USER);
+// Verify Brevo SMTP connection on startup
+console.log('🔍 Testing Brevo SMTP connection...');
+console.log('📧 SMTP Login:', EMAIL_USER);
+console.log('📧 Sender email:', SENDER_EMAIL);
 transporter.verify(function(error, success) {
   if (error) {
-    console.error('❌ Gmail connection FAILED:', error.message || error);
+    console.error('❌ Brevo SMTP connection FAILED:', error.message || error);
     console.error('⚠️  Check EMAIL_USER and EMAIL_PASS environment variables');
     console.error('Error code:', error.code);
     console.error('Error command:', error.command);
   } else {
-    console.log('✅ Gmail connection verified! Server is ready to send emails');
-    console.log('📧 Authenticated as:', EMAIL_USER);
+    console.log('✅ Brevo SMTP connection verified! Server is ready to send emails');
+    console.log('📧 Ready to send from:', SENDER_EMAIL);
+    console.log('📧 Daily limit: 300 emails/day (Brevo free plan)');
   }
 });
 
@@ -671,8 +668,8 @@ app.post('/send-order', async (req, res) => {
                 console.log('Sending customer email...');
                 const customerMailOptions = {
                     from: langPref === 'ar'
-                        ? '"مياسه ستيل" <mayasahstyle@gmail.com>'
-                        : '"Mayasah Style" <mayasahstyle@gmail.com>',
+                        ? `"مياسه ستيل" <${SENDER_EMAIL}>`
+                        : `"Mayasah Style" <${SENDER_EMAIL}>`,
                     to: customer_email,
                     subject: subjectCustomer,
                     html: htmlCustomer,
@@ -697,8 +694,8 @@ app.post('/send-order', async (req, res) => {
                 console.log('Sending owner notification email...');
                 const ownerMailOptions = {
                     from: langPref === 'ar'
-                        ? '"مياسه ستيل" <mayasahstyle@gmail.com>'
-                        : '"Mayasah Style" <mayasahstyle@gmail.com>',
+                        ? `"مياسه ستيل" <${SENDER_EMAIL}>`
+                        : `"Mayasah Style" <${SENDER_EMAIL}>`,
                     to: 'mayasahstyle@gmail.com',
                     subject: subjectOwner,
                     html: htmlOwner,
