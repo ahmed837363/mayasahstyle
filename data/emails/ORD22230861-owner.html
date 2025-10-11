@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { max-width:700px; margin:auto; padding:20px; background:#ffd6e7; color:#333333; font-family:'Segoe UI',Tahoma,sans-serif; }
+    .header { text-align:center; margin-bottom:30px; border-bottom:2px solid #c06c84; padding-bottom:15px; }
+    .header h1 { color:#8a2d52; margin:5px 0; }
+    .section-title { color:#c06c84; margin-top:30px; margin-bottom:10px; font-size:20px; }
+    .info-table, .items-table, .total-table { width:100%; border-collapse:collapse; margin:15px 0; }
+    .info-table td, .items-table td { padding:8px 10px; border-bottom:1px solid #f8f9fa; }
+    .items-table th { background-color:#c06c84; color:#fff; padding:12px; text-align:left; }
+    .items-table td { text-align:center; }
+    .total-table { font-size:18px; }
+    .total-row { font-weight:bold; font-size:20px; color:#8a2d52; }
+    .footer { margin-top:40px; text-align:center; color:#777; font-size:14px; padding-top:15px; border-top:1px solid #eee; }
+    .currency { font-family:Arial,sans-serif; }
+    .rtl { direction:rtl; text-align:right; font-family:'Segoe UI',Tahoma,sans-serif; }
+    .ltr { direction:ltr; text-align:left; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>New Order Received / تم استلام طلب جديد</h1>
+    <p>Order #: <strong>ORD22230861</strong> | رقم الطلب: <strong>ORD22230861</strong></p>
+    <p>Date: ٧‏/١٠‏/٢٠٢٥ | التاريخ: ٧‏/١٠‏/٢٠٢٥</p>
+  </div>
+
+  <div class="section-title">Customer Information / معلومات العميل</div>
+  <table class="info-table">
+    <tr>
+      <td><strong>Customer Name</strong></td>
+      <td>Ahmed Badyan</td>
+      <td class="rtl"><strong>اسم العميل</strong></td>
+      <td class="rtl">Ahmed Badyan</td>
+    </tr>
+    <tr>
+      <td><strong>Email</strong></td>
+      <td>ahmedbadyan200@gmail.com</td>
+      <td class="rtl"><strong>البريد الإلكتروني</strong></td>
+      <td class="rtl">ahmedbadyan200@gmail.com</td>
+    </tr>
+    <tr>
+      <td><strong>Phone</strong></td>
+      <td>+966572358863</td>
+      <td class="rtl"><strong>رقم الهاتف</strong></td>
+      <td class="rtl">+966572358863</td>
+    </tr>
+    <tr>
+      <td><strong>Address</strong></td>
+      <td>شارع الرياض</td>
+      <td class="rtl"><strong>العنوان</strong></td>
+      <td class="rtl">شارع الرياض</td>
+    </tr>
+    <tr>
+      <td><strong>City</strong></td>
+      <td>جدة</td>
+      <td class="rtl"><strong>المدينة</strong></td>
+      <td class="rtl">جدة</td>
+    </tr>
+    <tr>
+      <td><strong>Zip Code</strong></td>
+      <td>21431</td>
+      <td class="rtl"><strong>الرمز البريدي</strong></td>
+      <td class="rtl">21431</td>
+    </tr>
+    
+  </table>
+
+  <div class="section-title">Order Items / المنتجات</div>
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Size</th> <!-- Added size column -->
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th class="rtl">المنتج</th>
+        <th class="rtl">القياس</th> <!-- Added size column -->
+        <th class="rtl">الكمية</th>
+        <th class="rtl">السعر</th>
+        <th class="rtl">المجموع</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    </tbody>
+  </table>
+
+  <table class="total-table">
+    <tr>
+      <td colspan="2" style="text-align:right;">Subtotal:</td>
+      <td style="text-align:left;"><span class="currency">349.99 SAR</span></td>
+      <td class="rtl" colspan="2" style="text-align:left;">المجموع الفرعي:</td>
+      <td class="rtl" style="text-align:right;"><span class="currency">349.99 ر.س</span></td>
+    </tr>
+    <tr>
+      <td colspan="2" style="text-align:right;">VAT (15%):</td>
+      <td style="text-align:left;"><span class="currency">52.5 SAR</span></td>
+      <td class="rtl" colspan="2" style="text-align:left;">الضريبة (15%):</td>
+      <td class="rtl" style="text-align:right;"><span class="currency">52.5 ر.س</span></td>
+    </tr>
+    <tr>
+      <td colspan="2" style="text-align:right;">Shipping:</td>
+      <td style="text-align:left;"><span class="currency">0 SAR</span></td>
+      <td class="rtl" colspan="2" style="text-align:left;">الشحن:</td>
+      <td class="rtl" style="text-align:right;"><span class="currency">0 ر.س</span></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">Total:</td>
+      <td style="text-align:left;"><span class="currency">402.49 SAR</span></td>
+      <td class="rtl" colspan="2" style="text-align:left;">المجموع الكلي:</td>
+      <td class="rtl" style="text-align:right;"><span class="currency">402.49 ر.س</span></td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <p>Support: 0500000000 | Email: mayasahstyle@gmail.com</p>
+    <p>الدعم: 0500000000 | البريد الإلكتروني: mayasahstyle@gmail.com</p>
+    <p>&copy; 2025 Mayasah Style</p>
+  </div>
+</body>
+</html>

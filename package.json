@@ -1,0 +1,19 @@
+{
+  "name": "mayasahstyle-backend",
+  "version": "1.0.0",
+  "description": "Mayasah Style Backend API with Email",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.3",
+    "node-fetch": "^2.6.7",
+    "sqlite3": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

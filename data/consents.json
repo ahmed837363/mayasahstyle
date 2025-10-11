@@ -1,0 +1,13 @@
+[
+  {
+    "consent": {
+      "necessary": true,
+      "analytics": true,
+      "marketing": true,
+      "timestamp": "2025-10-09T15:29:42.651Z",
+      "version": "1.0"
+    },
+    "received_at": "2025-10-09T15:29:42.060Z",
+    "source": "cookie-endpoint"
+  }
+]
