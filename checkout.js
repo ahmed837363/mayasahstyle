@@ -1607,8 +1607,8 @@ async function sendOrderToServer(orderData) {
         const timeoutMs = 15000; // 15 seconds for server
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-        // Production API endpoint
-        const API_BASE = 'https://mayasahstyle.me/api';
+        // Render.com backend with email functionality
+        const API_BASE = 'https://mayasahstyle-backend.onrender.com';
         
         const response = await fetch(`${API_BASE}/send-order`, {
             method: 'POST',
