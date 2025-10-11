@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDPL Cookie Banner - Mayasah Style</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --choco: #3C2A21;
+            --choco-warm: #4E3524;
+            --antique-gold: #C6A969;
+            --ivory: #F8F4E6;
+            --white: #ffffff;
+            --shadow: 0 4px 16px rgba(60,42,33,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: var(--ivory);
+            color: var(--choco);
+        }
+
+        /* Cookie Banner Styles */
+        #cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: linear-gradient(135deg, var(--choco) 0%, var(--choco-warm) 100%);
+            color: var(--ivory);
+            padding: 24px 20px;
+            box-shadow: 0 -4px 20px rgba(60,42,33,0.15);
+            font-family: 'Montserrat', Arial, sans-serif;
+            z-index: 9999;
+            text-align: right;
+            border-top: 3px solid var(--antique-gold);
+        }
+
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .cookie-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .cookie-icon {
+            font-size: 2rem;
+            color: var(--antique-gold);
+            flex-shrink: 0;
+        }
+
+        .cookie-title {
+            margin: 0;
+            color: var(--antique-gold);
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .cookie-description {
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            font-size: 1rem;
+            color: var(--ivory);
+        }
+
+        .cookie-description a {
+            color: var(--antique-gold);
+            text-decoration: underline;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .cookie-description a:hover {
+            color: var(--white);
+        }
+
+        .cookie-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, var(--antique-gold) 0%, #D4AF37 100%);
+            color: var(--choco);
+            box-shadow: 0 2px 8px rgba(198,169,105,0.3);
+        }
+
+        .btn-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(198,169,105,0.4);
+        }
+
+        .btn-reject {
+            background: transparent;
+            color: var(--ivory);
+            border: 2px solid var(--antique-gold);
+        }
+
+        .btn-reject:hover {
+            background: var(--antique-gold);
+            color: var(--choco);
+        }
+
+        .btn-settings {
+            background: rgba(198,169,105,0.1);
+            color: var(--antique-gold);
+            border: 1px solid rgba(198,169,105,0.3);
+        }
+
+        .btn-settings:hover {
+            background: rgba(198,169,105,0.2);
+        }
+
+        /* Preferences Panel */
+        .preferences {
+            display: none;
+            margin-top: 20px;
+            border-top: 2px solid rgba(198,169,105,0.3);
+            padding-top: 20px;
+            background: rgba(60,42,33,0.05);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .preferences-title {
+            color: var(--antique-gold);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .cookie-category {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(198,169,105,0.2);
+        }
+
+        .cookie-category label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .cookie-category strong {
+            color: var(--antique-gold);
+            font-weight: 600;
+        }
+
+        .cookie-category .description {
+            color: var(--ivory);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            margin-right: 62px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.3);
+            transition: .4s;
+            border-radius: 26px;
+            border: 2px solid rgba(198,169,105,0.3);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--ivory);
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--antique-gold);
+            border-color: var(--antique-gold);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        input:disabled + .slider {
+            background-color: var(--antique-gold);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .save-preferences {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Hidden State */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #cookie-banner {
+                padding: 20px 15px;
+            }
+
+            .cookie-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .cookie-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .cookie-category label {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .cookie-category .description {
+                margin-right: 0;
+            }
+        }
+
+        /* Animation */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #cookie-banner {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        /* Consent Status Indicator */
+        .consent-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(60,42,33,0.9);
+            color: var(--ivory);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            z-index: 10000;
+            border: 1px solid var(--antique-gold);
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--antique-gold);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- PDPL Cookie Banner -->
+    <div id="cookie-banner">
+        <div class="cookie-content">
+            <div class="cookie-header">
+                <i class="fas fa-shield-alt cookie-icon"></i>
+                <h2 class="cookie-title">نحن نستخدم ملفات تعريف الارتباط</h2>
+            </div>
+            
+            <p class="cookie-description">
+                نستخدم ملفات تعريف الارتباط الضرورية لتشغيل موقعنا. كما نستخدم ملفات اختيارية لتحليل الزيارات وتخصيص الإعلانات. 
+                موافقتك تتيح لنا مشاركة البيانات مع شركائنا. اقرأ 
+                <a href="privacy.html" target="_blank">سياسة الخصوصية</a> 
+                لمزيد من المعلومات حول كيفية استخدامنا لبياناتك.
+            </p>
+            
+            <div class="cookie-actions">
+                <button id="accept-all" class="btn btn-accept">
+                    <i class="fas fa-check"></i>
+                    قبول الكل
+                </button>
+                <button id="reject-all" class="btn btn-reject">
+                    <i class="fas fa-times"></i>
+                    رفض الكل
+                </button>
+                <button id="open-settings" class="btn btn-settings">
+                    <i class="fas fa-cog"></i>
+                    التفضيلات
+                </button>
+            </div>
+            
+            <div id="preferences" class="preferences">
+                <h3 class="preferences-title">
+                    <i class="fas fa-sliders-h"></i>
+                    تفضيلات ملفات تعريف الارتباط
+                </h3>
+                
+                <div class="cookie-category">
+                    <label>
+                        <span class="switch">
+                            <input type="checkbox" id="necessary" checked disabled>
+                            <span class="slider"></span>
+                        </span>
+                        <div>
+                            <strong>ضرورية</strong>
+                            <div class="description">لا يمكن إيقافها - مطلوبة لتشغيل الموقع بشكل صحيح</div>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="cookie-category">
+                    <label>
+                        <span class="switch">
+                            <input type="checkbox" id="analytics">
+                            <span class="slider"></span>
+                        </span>
+                        <div>
+                            <strong>تحليلية</strong>
+                            <div class="description">تساعدنا في فهم كيفية استخدامك للموقع وتحسين تجربتك</div>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="cookie-category">
+                    <label>
+                        <span class="switch">
+                            <input type="checkbox" id="marketing">
+                            <span class="slider"></span>
+                        </span>
+                        <div>
+                            <strong>تسويقية</strong>
+                            <div class="description">تخصيص الإعلانات بناءً على اهتماماتك وتفضيلاتك</div>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="save-preferences">
+                    <button id="save-preferences" class="btn btn-accept">
+                        <i class="fas fa-save"></i>
+                        حفظ التفضيلات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consent Status Indicator (for testing) -->
+    <div id="consent-status" class="consent-status hidden">
+        حالة الموافقة: <span id="consent-text">غير محدد</span>
+    </div>
+
+    <script>
+        class PDPLCookieManager {
+            constructor() {
+                this.banner = document.getElementById('cookie-banner');
+                this.prefsPanel = document.getElementById('preferences');
+                this.consentStatus = document.getElementById('consent-status');
+                this.consentText = document.getElementById('consent-text');
+                
+                this.initializeEventListeners();
+                this.checkExistingConsent();
+            }
+
+            initializeEventListeners() {
+                // Button event listeners
+                document.getElementById('open-settings').addEventListener('click', () => this.togglePreferences());
+                document.getElementById('save-preferences').addEventListener('click', () => this.savePreferences());
+                document.getElementById('accept-all').addEventListener('click', () => this.acceptAll());
+                document.getElementById('reject-all').addEventListener('click', () => this.rejectAll());
+
+                // Category toggle listeners
+                document.getElementById('analytics').addEventListener('change', (e) => this.updateConsentStatus());
+                document.getElementById('marketing').addEventListener('change', (e) => this.updateConsentStatus());
+            }
+
+            checkExistingConsent() {
+                const consent = this.getStoredConsent();
+                if (consent) {
+                    this.hideBanner();
+                    this.loadCookiesBasedOnConsent(consent);
+                    this.updateConsentStatus();
+                } else {
+                    this.showBanner();
+                }
+            }
+
+            togglePreferences() {
+                const isVisible = this.prefsPanel.style.display === 'block';
+                this.prefsPanel.style.display = isVisible ? 'none' : 'block';
+                
+                const btn = document.getElementById('open-settings');
+                const icon = btn.querySelector('i');
+                if (isVisible) {
+                    icon.className = 'fas fa-cog';
+                    btn.innerHTML = '<i class="fas fa-cog"></i> التفضيلات';
+                } else {
+                    icon.className = 'fas fa-times';
+                    btn.innerHTML = '<i class="fas fa-times"></i> إغلاق';
+                }
+            }
+
+            savePreferences() {
+                const analytics = document.getElementById('analytics').checked;
+                const marketing = document.getElementById('marketing').checked;
+                
+                const consent = {
+                    necessary: true, // Always true
+                    analytics: analytics,
+                    marketing: marketing,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                this.saveConsent(consent);
+            }
+
+            acceptAll() {
+                const consent = {
+                    necessary: true,
+                    analytics: true,
+                    marketing: true,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                this.saveConsent(consent);
+            }
+
+            rejectAll() {
+                const consent = {
+                    necessary: true,
+                    analytics: false,
+                    marketing: false,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                this.saveConsent(consent);
+            }
+
+            saveConsent(consent) {
+                // Store in localStorage
+                localStorage.setItem('mayasah_cookie_consent', JSON.stringify(consent));
+                
+                // Store consent timestamp
+                localStorage.setItem('mayasah_consent_timestamp', new Date().toISOString());
+                
+                // Log consent for audit trail
+                this.logConsent(consent);
+                
+                // Hide banner and load cookies
+                this.hideBanner();
+                this.loadCookiesBasedOnConsent(consent);
+                this.updateConsentStatus();
+                
+                // Show success message
+                this.showSuccessMessage();
+            }
+
+            loadCookiesBasedOnConsent(consent) {
+                // Block non-essential scripts until consent
+                if (!consent.analytics) {
+                    this.blockScripts('analytics');
+                }
+                if (!consent.marketing) {
+                    this.blockScripts('marketing');
+                }
+
+                // Load scripts based on consent
+                if (consent.analytics) {
+                    this.loadAnalyticsScripts();
+                }
+                if (consent.marketing) {
+                    this.loadMarketingScripts();
+                }
+
+                // Always load necessary scripts
+                this.loadNecessaryScripts();
+            }
+
+            blockScripts(category) {
+                const scripts = document.querySelectorAll(`script[data-cookie-category="${category}"]`);
+                scripts.forEach(script => {
+                    script.setAttribute('data-blocked', 'true');
+                    script.style.display = 'none';
+                });
+            }
+
+            loadNecessaryScripts() {
+                // Load essential scripts that are always needed
+                console.log('Loading necessary scripts...');
+            }
+
+            loadAnalyticsScripts() {
+                // Load analytics scripts (Google Analytics, etc.)
+                console.log('Loading analytics scripts...');
+                
+                // Example: Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('consent', 'update', {
+                        'analytics_storage': 'granted'
+                    });
+                }
+            }
+
+            loadMarketingScripts() {
+                // Load marketing scripts (Facebook Pixel, etc.)
+                console.log('Loading marketing scripts...');
+                
+                // Example: Facebook Pixel
+                if (typeof fbq !== 'undefined') {
+                    fbq('consent', 'grant');
+                }
+            }
+
+            getStoredConsent() {
+                try {
+                    const stored = localStorage.getItem('mayasah_cookie_consent');
+                    return stored ? JSON.parse(stored) : null;
+                } catch (error) {
+                    console.error('Error parsing stored consent:', error);
+                    return null;
+                }
+            }
+
+            logConsent(consent) {
+                // In production, send this to your server for audit trails
+                const logData = {
+                    consent: consent,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    url: window.location.href,
+                    referrer: document.referrer
+                };
+
+                console.log('PDPL Consent Log:', logData);
+
+                // Send to server (implement your endpoint)
+                // this.sendConsentToServer(logData);
+            }
+
+            sendConsentToServer(logData) {
+                // Implement server-side logging
+                fetch('/api/consent-log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(logData)
+                }).catch(error => {
+                    console.error('Failed to log consent to server:', error);
+                });
+            }
+
+            showBanner() {
+                this.banner.classList.remove('hidden');
+                this.consentStatus.classList.remove('hidden');
+            }
+
+            hideBanner() {
+                this.banner.classList.add('hidden');
+            }
+
+            updateConsentStatus() {
+                const consent = this.getStoredConsent();
+                if (consent) {
+                    const status = [];
+                    if (consent.analytics) status.push('تحليلية');
+                    if (consent.marketing) status.push('تسويقية');
+                    
+                    this.consentText.textContent = status.length > 0 ? status.join('، ') : 'ضرورية فقط';
+                } else {
+                    this.consentText.textContent = 'غير محدد';
+                }
+            }
+
+            showSuccessMessage() {
+                // Create success notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--antique-gold);
+                    color: var(--choco);
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 10001;
+                    font-weight: 600;
+                    animation: slideIn 0.3s ease-out;
+                `;
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    تم حفظ تفضيلات ملفات تعريف الارتباط بنجاح
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            window.pdplCookieManager = new PDPLCookieManager();
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <!-- Example: Non-essential scripts (blocked until consent) -->
+    <script data-cookie-category="analytics" data-blocked="true">
+        // Google Analytics would load here after consent
+        console.log('Analytics script loaded');
+    </script>
+    
+    <script data-cookie-category="marketing" data-blocked="true">
+        // Facebook Pixel would load here after consent
+        console.log('Marketing script loaded');
+    </script>
+</body>
+</html> 
