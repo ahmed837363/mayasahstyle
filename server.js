@@ -52,13 +52,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verify Gmail connection on startup
+console.log('🔍 Testing Gmail connection...');
+console.log('📧 Email account configured:', EMAIL_USER);
 transporter.verify(function(error, success) {
   if (error) {
     console.error('❌ Gmail connection FAILED:', error.message || error);
-    console.error('Check EMAIL_USER and EMAIL_PASS environment variables');
+    console.error('⚠️  Check EMAIL_USER and EMAIL_PASS environment variables');
+    console.error('Error code:', error.code);
+    console.error('Error command:', error.command);
   } else {
     console.log('✅ Gmail connection verified! Server is ready to send emails');
-    console.log('📧 Email account:', EMAIL_USER);
+    console.log('📧 Authenticated as:', EMAIL_USER);
   }
 });
 
