@@ -43,7 +43,12 @@ const transporter = nodemailer.createTransport({
   },
   tls: {
     rejectUnauthorized: false
-  }
+  },
+  pool: true, // Use connection pooling
+  maxConnections: 1, // Limit to 1 connection at a time (more reliable)
+  maxMessages: 100, // Max messages per connection
+  rateDelta: 1000, // Time between messages (1 second)
+  rateLimit: 3 // Max 3 messages per rateDelta
 });
 
 
@@ -641,43 +646,66 @@ app.post('/send-order', async (req, res) => {
     // Send emails asynchronously in background
     (async () => {
         try {
-            console.log('Starting email send for order:', order_id);
+            console.log('📧 Starting email send for order:', order_id);
+            console.log('Customer email:', customer_email);
+            console.log('Language:', langPref);
             
-            // Add timeout to email sending (30 seconds max)
-            const emailPromise = Promise.all([
-                // Email to customer
-                transporter.sendMail({
-                    from: language === 'ar'
+            // Send emails one at a time with individual timeouts (more reliable than Promise.all)
+            // Customer email first
+            try {
+                console.log('Sending customer email...');
+                const customerMailOptions = {
+                    from: langPref === 'ar'
                         ? '"مياسه ستيل" <mayasahstyle@gmail.com>'
                         : '"Mayasah Style" <mayasahstyle@gmail.com>',
                     to: customer_email,
                     subject: subjectCustomer,
                     html: htmlCustomer,
                     attachments: attachments.length ? attachments : undefined
-                }),
-                // Email to owner
-                transporter.sendMail({
-                    from: language === 'ar'
+                };
+                
+                await Promise.race([
+                    transporter.sendMail(customerMailOptions),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Customer email timeout')), 60000))
+                ]);
+                
+                console.log('✓ Customer email sent successfully to:', customer_email);
+            } catch (custErr) {
+                console.error('✗ Customer email failed:', custErr.message || custErr);
+            }
+            
+            // Small delay between emails
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Owner email second
+            try {
+                console.log('Sending owner notification email...');
+                const ownerMailOptions = {
+                    from: langPref === 'ar'
                         ? '"مياسه ستيل" <mayasahstyle@gmail.com>'
                         : '"Mayasah Style" <mayasahstyle@gmail.com>',
                     to: 'mayasahstyle@gmail.com',
                     subject: subjectOwner,
                     html: htmlOwner,
                     attachments: attachments.length ? attachments : undefined
-                })
-            ]);
+                };
+                
+                await Promise.race([
+                    transporter.sendMail(ownerMailOptions),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Owner email timeout')), 60000))
+                ]);
+                
+                console.log('✓ Owner notification sent successfully');
+            } catch (ownErr) {
+                console.error('✗ Owner email failed:', ownErr.message || ownErr);
+            }
             
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Email timeout after 30 seconds')), 30000)
-            );
-            
-            await Promise.race([emailPromise, timeoutPromise]);
-            
-            console.log('✓ Emails sent successfully for order:', order_id);
+            console.log('✓ Email processing completed for order:', order_id);
             
         } catch (emailError) {
             console.error('✗ Email sending failed for order:', order_id);
             console.error('Error details:', emailError.message || emailError);
+            console.error('Error stack:', emailError.stack);
             
             // Store failed email info for retry later
             const payments = loadProcessedPayments();
