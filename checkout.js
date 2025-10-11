@@ -1280,11 +1280,13 @@ async function handleOrderSubmission() {
             showNotification(successMessage, 'success');
         } else {
             console.warn('handleOrderSubmission: server/email send failed:', sendResult.error || sendResult.data);
-            // Keep data persisted, but show an error and provide retry
-            showErrorState();
-            const serverFailMsg = lang === 'ar' ? 'فشل إرسال الفاتورة عبر البريد الإلكتروني. يرجى المحاولة مرة أخرى.' : 'Failed to send invoice by email. Please try again.';
-            showNotification(serverFailMsg, 'error');
-            addRetryButton(orderData);
+            // Email failed but order is saved - proceed to confirmation page anyway
+            showSuccessState();
+            processOrder(orderData);
+            const warnMsg = lang === 'ar' 
+                ? 'تم حفظ الطلب! سنرسل لك الفاتورة قريباً.' 
+                : 'Order saved! We will send you the invoice shortly.';
+            showNotification(warnMsg, 'warning');
         }
 
     } catch (error) {
