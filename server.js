@@ -51,6 +51,17 @@ const transporter = nodemailer.createTransport({
   rateLimit: 3 // Max 3 messages per rateDelta
 });
 
+// Verify Gmail connection on startup
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('❌ Gmail connection FAILED:', error.message || error);
+    console.error('Check EMAIL_USER and EMAIL_PASS environment variables');
+  } else {
+    console.log('✅ Gmail connection verified! Server is ready to send emails');
+    console.log('📧 Email account:', EMAIL_USER);
+  }
+});
+
 
 // Place your base64 string here (replace the value below with your own)
 // Simple Saudi Riyal symbol using Unicode character
