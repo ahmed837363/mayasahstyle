@@ -638,14 +638,6 @@ app.post('/send-order', async (req, res) => {
         order_id: order_id
     });
     
-    // TEMPORARILY DISABLED: Email sending until Gmail issue is fixed
-    // Orders are saved successfully, emails can be sent manually
-    console.log('📦 Order saved:', order_id);
-    console.log('⚠️  Email sending temporarily disabled - order saved successfully');
-    console.log('Customer:', customer_name, '-', customer_email);
-    console.log('Total:', order_total);
-    
-    /* COMMENTED OUT - Re-enable when Gmail is working
     // Send emails asynchronously in background
     (async () => {
         try {
@@ -699,7 +691,6 @@ app.post('/send-order', async (req, res) => {
             saveProcessedPayments(payments);
         }
     })();
-    */
 
 });
 
