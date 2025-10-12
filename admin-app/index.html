@@ -1,45 +1,44 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#8a2d52">
-    <title>????? ????? - ???? ??????</title>
+    <title>مياسه ستايل - لوحة التحكم</title>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
 </head>
 <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; text-align: right; background: linear-gradient(135deg, #ffd6e7 0%, #ffe5f0 100%); margin: 0; padding: 20px;">
     <div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-        <h1 style="text-align: center; color: #8a2d52; margin-bottom: 10px;"> ????? ?????</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">???? ?????? ????????</p>
+        <h1 style="text-align: center; color: #8a2d52; margin-bottom: 10px;"> مياسه ستايل</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">لوحة التحكم الإدارية</p>
         
         <div id="alert" style="display:none; padding: 15px; border-radius: 10px; margin-bottom: 20px;"></div>
         
         <form id="loginForm">
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> ?????? ??????????</label>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> البريد الإلكتروني</label>
                 <input type="email" id="email" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
             </div>
             
             <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> ???? ??????</label>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> كلمة المرور</label>
                 <input type="password" id="password" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
             </div>
             
             <button type="submit" id="loginBtn" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #8a2d52 0%, #c06c84 100%); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer;">
-                ????? ?????? 
+                تسجيل الدخول 
             </button>
         </form>
         
         <p style="text-align: center; margin-top: 20px; color: #999; font-size: 14px;">
-            ???? ????? ?????? ?????? ?????
+            مصمم خصيصا لإدارة منتجات متجرك
         </p>
     </div>
 
     <script>
-        // Appwrite Config (inline to avoid loading issues)
         const APPWRITE_CONFIG = {
             endpoint: 'https://cloud.appwrite.io/v1',
-            projectId: '6faeb3e2800390f4f7e577',
+            projectId: '65eb3e280039fdf7e677',
             databaseId: '60ed4036002ab50c7171',
             productsCollectionId: 'products',
             storageBucketId: 'product-images'
@@ -48,14 +47,14 @@
         const { Client, Account } = Appwrite;
         const client = new Client()
             .setEndpoint(APPWRITE_CONFIG.endpoint)
-            .setProject(APPWRITE_CONFIG.projectId).setKey('71c1ee9c14e38f6381a7d63ff19ae36d6db985033a8446f2d95a150dd41d7be3f09b61fb922bab609c615923f6b5a8acf6ed46e7c6b835b355daf55ce7640ed7bb4e18f1b435ee22e7ef8c7a9f32a74e49d3ece631cd12b21955908e1953ec02210b7ad97227409c3a685bd2138b35116a57ebaaea5967cae1d9c64e8d2bd85f');
+            .setProject(APPWRITE_CONFIG.projectId)
+            .setKey('71c1ee9c14e38f6381a7d63ff19ae36d6db985033a8446f2d95a150dd41d7be3f09b61fb922bab609c615923f6b5a8acf6ed46e7c6b835b355daf55ce7640ed7bb4e18f1b435ee22e7ef8c7a9f32a74e49d3ece631cd12b21955908e1953ec02210b7ad97227409c3a685bd2138b35116a57ebaaea5967cae1d9c64e8d2bd85f');
         
         const account = new Account(client);
         const loginForm = document.getElementById('loginForm');
         const alertDiv = document.getElementById('alert');
         const loginBtn = document.getElementById('loginBtn');
 
-        // Check if already logged in
         checkSession();
 
         async function checkSession() {
@@ -63,7 +62,7 @@
                 await account.get();
                 window.location.href = 'dashboard.html';
             } catch (error) {
-                // Not logged in, show login form
+                // Not logged in
             }
         }
 
@@ -73,34 +72,32 @@
             const password = document.getElementById('password').value;
             
             loginBtn.disabled = true;
-            loginBtn.innerHTML = '???? ????? ??????...';
+            loginBtn.innerHTML = 'جاري تسجيل الدخول...';
             
             try {
                 await account.createEmailSession(email, password);
-                showAlert(' ?? ????? ?????? ?????!', 'success');
+                showAlert(' تم تسجيل الدخول بنجاح!', 'success');
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
             } catch (error) {
                 console.error('Login error:', error);
-                let errorMessage = '??? ??? ?? ????? ??????';
+                let errorMessage = 'حدث خطأ في تسجيل الدخول';
                 
                 if (error.code === 401) {
-                    errorMessage = ' ?????? ?????????? ?? ???? ?????? ??? ?????';
-                } else if (error.message.includes('fetch')) {
-                    errorMessage = ' ??? ?? ??????? ???????. ???? ??:\n1. ????? mayasahstyle.me ?? ??????? Appwrite\n2. ??????? ?????????';
+                    errorMessage = ' البريد الإلكتروني أو كلمة المرور غير صحيحة';
                 } else {
                     errorMessage = ' ' + error.message;
                 }
                 
                 showAlert(errorMessage, 'error');
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = '????? ?????? ';
+                loginBtn.innerHTML = 'تسجيل الدخول ';
             }
         });
 
         function showAlert(message, type) {
-            alertDiv.innerHTML = message.replace(/\n/g, '<br>');
+            alertDiv.innerHTML = message;
             alertDiv.style.display = 'block';
             alertDiv.style.background = type === 'success' ? '#d1fae5' : '#fee2e2';
             alertDiv.style.color = type === 'success' ? '#065f46' : '#991b1b';
@@ -109,4 +106,3 @@
     </script>
 </body>
 </html>
-
