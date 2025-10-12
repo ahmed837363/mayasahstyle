@@ -6,7 +6,6 @@
     <meta name="theme-color" content="#8a2d52">
     <title>مياسه ستايل - لوحة التحكم</title>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
-    <script src="config.js"></script>
 </head>
 <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; text-align: right; background: linear-gradient(135deg, #ffd6e7 0%, #ffe5f0 100%); margin: 0; padding: 20px;">
     <div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
@@ -37,28 +36,71 @@
     </div>
 
     <script>
+        // Appwrite Config (inline to avoid loading issues)
+        const APPWRITE_CONFIG = {
+            endpoint: 'https://cloud.appwrite.io/v1',
+            projectId: '6faeb3e2800390f4f7e577',
+            databaseId: '60ed4036002ab50c7171',
+            productsCollectionId: 'products',
+            storageBucketId: 'product-images'
+        };
+
         const { Client, Account } = Appwrite;
-        const client = new Client().setEndpoint(APPWRITE_CONFIG.endpoint).setProject(APPWRITE_CONFIG.projectId);
+        const client = new Client()
+            .setEndpoint(APPWRITE_CONFIG.endpoint)
+            .setProject(APPWRITE_CONFIG.projectId);
+        
         const account = new Account(client);
         const loginForm = document.getElementById('loginForm');
         const alertDiv = document.getElementById('alert');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Check if already logged in
+        checkSession();
+
+        async function checkSession() {
+            try {
+                await account.get();
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                // Not logged in, show login form
+            }
+        }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = 'جاري تسجيل الدخول...';
             
             try {
                 await account.createEmailSession(email, password);
-                showAlert('تم تسجيل الدخول بنجاح! ', 'success');
-                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                showAlert(' تم تسجيل الدخول بنجاح!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
             } catch (error) {
-                showAlert('خطأ: ' + (error.message || 'البريد أو كلمة المرور غير صحيحة'), 'error');
+                console.error('Login error:', error);
+                let errorMessage = 'حدث خطأ في تسجيل الدخول';
+                
+                if (error.code === 401) {
+                    errorMessage = ' البريد الإلكتروني أو كلمة المرور غير صحيحة';
+                } else if (error.message.includes('fetch')) {
+                    errorMessage = ' خطأ في الاتصال بالخادم. تأكد من:\n1. إضافة mayasahstyle.me في إعدادات Appwrite\n2. الاتصال بالإنترنت';
+                } else {
+                    errorMessage = ' ' + error.message;
+                }
+                
+                showAlert(errorMessage, 'error');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'تسجيل الدخول ';
             }
         });
 
         function showAlert(message, type) {
-            alertDiv.innerHTML = message;
+            alertDiv.innerHTML = message.replace(/\n/g, '<br>');
             alertDiv.style.display = 'block';
             alertDiv.style.background = type === 'success' ? '#d1fae5' : '#fee2e2';
             alertDiv.style.color = type === 'success' ? '#065f46' : '#991b1b';
