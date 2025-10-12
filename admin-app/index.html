@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8a2d52">
+    <title>مياسه ستايل - لوحة التحكم</title>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+    <script src="config.js"></script>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; text-align: right; background: linear-gradient(135deg, #ffd6e7 0%, #ffe5f0 100%); margin: 0; padding: 20px;">
+    <div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        <h1 style="text-align: center; color: #8a2d52; margin-bottom: 10px;"> مياسه ستايل</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">لوحة التحكم الإدارية</p>
+        
+        <div id="alert" style="display:none; padding: 15px; border-radius: 10px; margin-bottom: 20px;"></div>
+        
+        <form id="loginForm">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> البريد الإلكتروني</label>
+                <input type="email" id="email" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> كلمة المرور</label>
+                <input type="password" id="password" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
+            </div>
+            
+            <button type="submit" id="loginBtn" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #8a2d52 0%, #c06c84 100%); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer;">
+                تسجيل الدخول 
+            </button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 20px; color: #999; font-size: 14px;">
+            مصمم خصيصا لإدارة منتجات متجرك
+        </p>
+    </div>
+
+    <script>
+        const { Client, Account } = Appwrite;
+        const client = new Client().setEndpoint(APPWRITE_CONFIG.endpoint).setProject(APPWRITE_CONFIG.projectId);
+        const account = new Account(client);
+        const loginForm = document.getElementById('loginForm');
+        const alertDiv = document.getElementById('alert');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                await account.createEmailSession(email, password);
+                showAlert('تم تسجيل الدخول بنجاح! ', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            } catch (error) {
+                showAlert('خطأ: ' + (error.message || 'البريد أو كلمة المرور غير صحيحة'), 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            alertDiv.innerHTML = message;
+            alertDiv.style.display = 'block';
+            alertDiv.style.background = type === 'success' ? '#d1fae5' : '#fee2e2';
+            alertDiv.style.color = type === 'success' ? '#065f46' : '#991b1b';
+            alertDiv.style.borderLeft = `4px solid ${type === 'success' ? '#10b981' : '#ef4444'}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+﻿{
+  "name": "مياسه ستايل - لوحة التحكم",
+  "short_name": "مياسه ستايل",
+  "description": "لوحة التحكم الإدارية لمتجر مياسه ستايل",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffd6e7",
+  "theme_color": "#8a2d52",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "../images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
