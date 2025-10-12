@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang='ar' dir='rtl'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>تشخيص Appwrite</title>
+</head>
+<body style='font-family: Arial; direction: rtl; padding: 20px;'>
+    <h1>اختبار الاتصال بـ Appwrite</h1>
+    <div id='result'></div>
+    <script src='https://cdn.jsdelivr.net/npm/appwrite@13.0.0'></script>
+    <script>
+        const result = document.getElementById('result');
+        
+        async function testConnection() {
+            try {
+                const client = new Appwrite.Client()
+                    .setEndpoint('https://cloud.appwrite.io/v1')
+                    .setProject('65eb3e280039fdf7e677');
+                
+                const account = new Appwrite.Account(client);
+                
+                result.innerHTML = '<p style=\"color: green;\"> تم الاتصال بـ Appwrite بنجاح!</p>';
+                result.innerHTML += '<p>Project ID: 65eb3e280039fdf7e677</p>';
+                result.innerHTML += '<p>Endpoint: https://cloud.appwrite.io/v1</p>';
+                
+                // Try to get session (will fail if not logged in, but connection works)
+                try {
+                    await account.get();
+                    result.innerHTML += '<p style=\"color: blue;\">ℹ أنت مسجل دخول بالفعل</p>';
+                } catch (e) {
+                    if (e.code === 401) {
+                        result.innerHTML += '<p style=\"color: orange;\"> غير مسجل دخول (هذا طبيعي)</p>';
+                    } else {
+                        throw e;
+                    }
+                }
+            } catch (error) {
+                result.innerHTML = '<p style=\"color: red;\"> خطأ في الاتصال:</p>';
+                result.innerHTML += '<pre>' + JSON.stringify(error, null, 2) + '</pre>';
+                result.innerHTML += '<h3>الحل:</h3>';
+                result.innerHTML += '<ol>';
+                result.innerHTML += '<li>اذهب إلى: https://cloud.appwrite.io</li>';
+                result.innerHTML += '<li>افتح مشروع mayasahstyle</li>';
+                result.innerHTML += '<li>اذهب إلى Settings</li>';
+                result.innerHTML += '<li>ابحث عن Platforms أو Web SDK</li>';
+                result.innerHTML += '<li>أضف mayasahstyle.me كـ hostname</li>';
+                result.innerHTML += '</ol>';
+            }
+        }
+        
+        testConnection();
+    </script>
+</body>
+</html>
