@@ -44,10 +44,7 @@
         
         const APPWRITE_CONFIG = {
             endpoint: 'https://cloud.appwrite.io/v1',
-            projectId: '65eb3e280039fdf7e677',
-            databaseId: '60ed4036002ab50c7171',
-            productsCollectionId: 'products',
-            storageBucketId: 'product-images'
+            projectId: '65eb3e280039fdf7e677'
         };
 
         console.log(' Config:', APPWRITE_CONFIG);
@@ -55,8 +52,7 @@
         const { Client, Account } = Appwrite;
         const client = new Client()
             .setEndpoint(APPWRITE_CONFIG.endpoint)
-            .setProject(APPWRITE_CONFIG.projectId)
-            .setKey('71c1ee9c14e38f6381a7d63ff19ae36d6db985033a8446f2d95a150dd41d7be3f09b61fb922bab609c615923f6b5a8acf6ed46e7c6b835b355daf55ce7640ed7bb4e18f1b435ee22e7ef8c7a9f32a74e49d3ece631cd12b21955908e1953ec02210b7ad97227409c3a685bd2138b35116a57ebaaea5967cae1d9c64e8d2bd85f');
+            .setProject(APPWRITE_CONFIG.projectId);
         
         console.log(' Client created');
         statusDiv.innerHTML = ' تم الاتصال بـ Appwrite';
@@ -114,7 +110,6 @@
                 console.log('Error code:', error.code);
                 console.log('Error message:', error.message);
                 console.log('Error type:', error.type);
-                console.log('Full error:', JSON.stringify(error, null, 2));
                 
                 let errorMessage = 'حدث خطأ في تسجيل الدخول';
                 
@@ -122,12 +117,14 @@
                     errorMessage = ' البريد الإلكتروني أو كلمة المرور غير صحيحة';
                 } else if (error.code === 404) {
                     errorMessage = ' المستخدم غير موجود. يرجى إنشاء حساب في Appwrite أولا';
+                } else if (error.message && error.message.includes('CORS')) {
+                    errorMessage = ' خطأ CORS: يجب إضافة mayasahstyle.me في إعدادات Appwrite  Platforms';
                 } else {
-                    errorMessage = ' خطأ: ' + error.message;
+                    errorMessage = ' خطأ: ' + (error.message || 'خطأ غير معروف');
                 }
                 
                 showAlert(errorMessage, 'error');
-                statusDiv.innerHTML = ' فشل تسجيل الدخول';
+                statusDiv.innerHTML = ' فشل تسجيل الدخول - ' + errorMessage;
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = 'تسجيل الدخول ';
             }
