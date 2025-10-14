@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - مياسه ستايل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #ffd6e7 0%, #ffb3d9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #8a2d52;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #8a2d52;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #8a2d52 0%, #c06c84 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+        
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-right: 4px solid #10b981;
+        }
+        
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-right: 4px solid #ef4444;
+        }
+        
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #8a2d52;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>مياسه ستايل</h1>
+            <p class="subtitle">لوحة التحكم الإدارية</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="admin@mayasahstyle.me"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="••••••••"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="btn" id="loginBtn">
+                تسجيل الدخول
+            </button>
+        </form>
+
+        <div class="info">
+            مصمم خصيصاً لإدارة منتجاتك
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = 'https://cloud.appwrite.io/v1';
+        const PROJECT_ID = '68eb3e280039fdf7e677';
+
+        const form = document.getElementById('loginForm');
+        const alertDiv = document.getElementById('alert');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Check if already logged in
+        checkSession();
+
+        async function checkSession() {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                try {
+                    const response = await fetch(`${API_ENDPOINT}/account`, {
+                        headers: {
+                            'X-Appwrite-Project': PROJECT_ID,
+                            'X-Appwrite-Session': sessionId
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        localStorage.removeItem('sessionId');
+                    }
+                } catch (error) {
+                    localStorage.removeItem('sessionId');
+                }
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<div class="spinner"></div>';
+            
+            try {
+                // Try to login
+                const loginResponse = await fetch(`${API_ENDPOINT}/account/sessions/email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Appwrite-Project': PROJECT_ID
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (loginResponse.ok) {
+                    const session = await loginResponse.json();
+                    localStorage.setItem('sessionId', session.$id);
+                    localStorage.setItem('userEmail', email);
+                    showAlert('✅ تم تسجيل الدخول بنجاح!', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                } else {
+                    const error = await loginResponse.json();
+                    
+                    // Check if account doesn't exist (401) or user not found
+                    if (loginResponse.status === 401 && error.type === 'user_invalid_credentials') {
+                        // Try to create account
+                        await createAccount(email, password);
+                    } else {
+                        // Show error message
+                        let errorMsg = 'فشل تسجيل الدخول';
+                        if (error.message.includes('Invalid credentials')) {
+                            errorMsg = '❌ كلمة المرور غير صحيحة. حاول مرة أخرى أو استخدم بريد إلكتروني مختلف.';
+                        } else if (error.message.includes('user with the same id')) {
+                            errorMsg = '❌ الحساب موجود مسبقاً. يرجى إدخال كلمة المرور الصحيحة.';
+                        } else {
+                            errorMsg = '❌ ' + (error.message || 'فشل تسجيل الدخول');
+                        }
+                        showAlert(errorMsg, 'error');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'تسجيل الدخول';
+                    }
+                }
+            } catch (error) {
+                showAlert('❌ خطأ في الاتصال: ' + error.message, 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'تسجيل الدخول';
+            }
+        });
+
+        async function createAccount(email, password) {
+            try {
+                loginBtn.innerHTML = 'جاري إنشاء الحساب...';
+                
+                // Generate unique ID
+                const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Create account
+                const createResponse = await fetch(`${API_ENDPOINT}/account`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Appwrite-Project': PROJECT_ID
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        email: email,
+                        password: password,
+                        name: 'مدير مياسه ستيل'
+                    })
+                });
+
+                if (!createResponse.ok) {
+                    const error = await createResponse.json();
+                    
+                    // If account already exists, prompt user to login instead
+                    if (error.message && error.message.includes('user with the same id')) {
+                        showAlert('❌ الحساب موجود مسبقاً! يرجى إدخال كلمة المرور الصحيحة للدخول.', 'error');
+                    } else {
+                        showAlert('❌ ' + (error.message || 'فشل إنشاء الحساب'), 'error');
+                    }
+                    
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'تسجيل الدخول';
+                    return;
+                }
+
+                showAlert('✅ تم إنشاء الحساب! جاري تسجيل الدخول...', 'success');
+                
+                // Wait a bit then login
+                setTimeout(async () => {
+                    const loginResponse = await fetch(`${API_ENDPOINT}/account/sessions/email`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Appwrite-Project': PROJECT_ID
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    if (loginResponse.ok) {
+                        const session = await loginResponse.json();
+                        localStorage.setItem('sessionId', session.$id);
+                        localStorage.setItem('userEmail', email);
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        showAlert('❌ فشل تسجيل الدخول بعد إنشاء الحساب', 'error');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'تسجيل الدخول';
+                    }
+                }, 2000);
+            } catch (error) {
+                showAlert('❌ ' + error.message, 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'تسجيل الدخول';
+            }
+        }
+
+        function showAlert(message, type) {
+            alertDiv.textContent = message;
+            alertDiv.className = 'alert ' + type;
+            alertDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

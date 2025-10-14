@@ -1602,15 +1602,19 @@ function hideLoadingState() {
 // Send order to backend and return { success: boolean, data?, error? }
 async function sendOrderToServer(orderData) {
     try {
-        console.log('sendOrderToServer: sending to backend');
+        console.log('sendOrderToServer: sending to Azure Function');
         const controller = new AbortController();
-        const timeoutMs = 15000; // 15 seconds for server
+        const timeoutMs = 30000; // 30 seconds for Azure Function
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-        // Render.com backend with email functionality
-        const API_BASE = 'https://mayasahstyle-backend.onrender.com';
+        // Azure Function endpoint
+        // IMPORTANT: After deploying to Azure, update this URL to your actual Azure Static Web App URL
+        // Example: 'https://mayasahstyle.azurestaticapps.net/api/processOrder'
+        const AZURE_FUNCTION_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:7071/api/processOrder'  // Local testing
+            : '/api/processOrder';  // Production (relative URL works with Static Web Apps)
         
-        const response = await fetch(`${API_BASE}/send-order`, {
+        const response = await fetch(AZURE_FUNCTION_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData),
@@ -1625,7 +1629,10 @@ async function sendOrderToServer(orderData) {
         }
 
         const data = await response.json().catch(() => null);
-        if (data && data.success) return { success: true, data };
+        if (data && data.success) {
+            console.log('✓ Order processed successfully:', data.order_id);
+            return { success: true, data };
+        }
         return { success: false, data };
     } catch (err) {
         if (err.name === 'AbortError') {

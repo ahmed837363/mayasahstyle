@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - مياسه ستايل</title>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        h2 { color: #333; margin-bottom: 20px; }
+        .product-list { display: grid; gap: 15px; }
+        .product-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .loading { text-align: center; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌸 لوحة تحكم مياسه ستايل</h1>
+        <button class="btn btn-danger" onclick="logout()">تسجيل الخروج</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>مرحباً! <span id="userEmail"></span></h2>
+            <p>إجمالي المنتجات: <strong id="productCount">0</strong></p>
+        </div>
+
+        <div class="card">
+            <h2>المنتجات</h2>
+            <div id="products" class="product-list">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const client = new Appwrite.Client()
+            .setEndpoint('https://cloud.appwrite.io/v1')
+            .setProject('68eb3e280039fdf7e677');
+
+        const account = new Appwrite.Account(client);
+        const databases = new Appwrite.Databases(client);
+
+        const DATABASE_ID = '68eb4036002db50c7171';
+        const COLLECTION_ID = 'products';
+
+        // Check authentication
+        async function init() {
+            try {
+                // Get current user
+                const user = await account.get();
+                document.getElementById('userEmail').textContent = user.email;
+
+                // Load products
+                await loadProducts();
+            } catch (error) {
+                console.error('Auth error:', error);
+                alert('انتهت الجلسة. الرجاء تسجيل الدخول مرة أخرى');
+                window.location.href = 'simple-login.html';
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+                
+                document.getElementById('productCount').textContent = response.total;
+                
+                const productsDiv = document.getElementById('products');
+                
+                if (response.documents.length === 0) {
+                    productsDiv.innerHTML = '<p>لا توجد منتجات</p>';
+                    return;
+                }
+                
+                productsDiv.innerHTML = response.documents.map(product => `
+                    <div class="product-item">
+                        <div>
+                            <strong>${product.name_ar || 'بدون اسم'}</strong><br>
+                            <small>السعر: ${product.price} ر.س | المخزون: ${product.current_stock || 0}</small>
+                        </div>
+                        <button class="btn btn-primary" onclick="editProduct('${product.$id}')">
+                            تعديل
+                        </button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('products').innerHTML = 
+                    '<p style="color: red;">❌ خطأ في تحميل المنتجات: ' + error.message + '</p>';
+            }
+        }
+
+        async function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                try {
+                    await account.deleteSession('current');
+                    window.location.href = 'simple-login.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    window.location.href = 'simple-login.html';
+                }
+            }
+        }
+
+        function editProduct(id) {
+            alert('تعديل المنتج: ' + id + '\n(سيتم إضافة هذه الميزة قريباً)');
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

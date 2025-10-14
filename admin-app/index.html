@@ -3,38 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#8a2d52">
-    <title>مياسه ستايل - لوحة التحكم</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>تسجيل الدخول - مياسه ستايل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #ffd6e7 0%, #ffb3d9 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); padding: 40px; width: 100%; max-width: 400px; }
+        h1 { color: #8a2d52; font-size: 32px; text-align: center; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 16px; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+        input { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: 'Cairo', sans-serif; }
+        input:focus { outline: none; border-color: #8a2d52; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #8a2d52 0%, #c06c84 100%); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .alert { padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; font-weight: 600; }
+        .alert.success { background: #d1fae5; color: #065f46; border-right: 4px solid #10b981; }
+        .alert.error { background: #fee2e2; color: #991b1b; border-right: 4px solid #ef4444; }
+        .info { text-align: center; margin-top: 20px; color: #999; font-size: 14px; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #8a2d52; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
-<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; text-align: right; background: linear-gradient(135deg, #ffd6e7 0%, #ffe5f0 100%); margin: 0; padding: 20px;">
-    <div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-        <h1 style="text-align: center; color: #8a2d52; margin-bottom: 10px;"> مياسه ستايل</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">لوحة التحكم الإدارية</p>
-        
-        <div id="alert" style="display:none; padding: 15px; border-radius: 10px; margin-bottom: 20px;"></div>
-        
+<body>
+    <div class="container">
+        <h1>مياسه ستايل</h1>
+        <p class="subtitle">لوحة التحكم الإدارية</p>
+        <div id="alert" class="alert"></div>
         <form id="loginForm">
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> البريد الإلكتروني</label>
-                <input type="email" id="email" value="admin@mayasahstyle.me" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="email" placeholder="admin@mayasahstyle.me" required>
             </div>
-            
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;"> كلمة المرور</label>
-                <input type="password" id="password" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" placeholder="••••••••" required>
             </div>
-            
-            <button type="submit" id="loginBtn" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #8a2d52 0%, #c06c84 100%); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer;">
-                تسجيل الدخول 
-            </button>
+            <button type="submit" class="btn" id="loginBtn">تسجيل الدخول</button>
         </form>
-        
-        <p style="text-align: center; margin-top: 20px; color: #999; font-size: 14px;">
-            مصمم خصيصا لإدارة منتجات متجرك
-        </p>
+        <div class="info">مصمم خصيصاً لإدارة منتجاتك</div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
-    <script src="login.js"></script>
+    <script>
+        const API = 'https://cloud.appwrite.io/v1';
+        const PROJECT = '68eb3e280039fdf7e677';
+        const form = document.getElementById('loginForm');
+        const alert = document.getElementById('alert');
+        const btn = document.getElementById('loginBtn');
+        
+        async function login(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div>';
+            
+            try {
+                const res = await fetch(`${API}/account/sessions/email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Appwrite-Project': PROJECT },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+                
+                if (res.ok) {
+                    const session = await res.json();
+                    localStorage.setItem('sessionId', session.$id);
+                    showAlert('✅ تم تسجيل الدخول بنجاح!', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                } else if (res.status === 401) {
+                    await createAccount(email, password);
+                } else {
+                    const err = await res.json();
+                    showAlert('❌ ' + (err.message || 'فشل تسجيل الدخول'), 'error');
+                    resetBtn();
+                }
+            } catch (err) {
+                showAlert('❌ خطأ: ' + err.message, 'error');
+                resetBtn();
+            }
+        }
+        
+        async function createAccount(email, password) {
+            try {
+                btn.innerHTML = 'جاري إنشاء الحساب...';
+                const userId = 'u' + Date.now();
+                const res = await fetch(`${API}/account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Appwrite-Project': PROJECT },
+                    body: JSON.stringify({ userId, email, password, name: 'مدير' }),
+                    credentials: 'include'
+                });
+                
+                if (res.ok) {
+                    showAlert('✅ تم إنشاء الحساب! جاري تسجيل الدخول...', 'success');
+                    setTimeout(() => login({ preventDefault: () => {} }), 2000);
+                } else {
+                    const err = await res.json();
+                    showAlert('❌ ' + (err.message || 'فشل إنشاء الحساب'), 'error');
+                    resetBtn();
+                }
+            } catch (err) {
+                showAlert('❌ خطأ: ' + err.message, 'error');
+                resetBtn();
+            }
+        }
+        
+        function showAlert(msg, type) {
+            alert.textContent = msg;
+            alert.className = 'alert ' + type;
+            alert.style.display = 'block';
+        }
+        
+        function resetBtn() {
+            btn.disabled = false;
+            btn.textContent = 'تسجيل الدخول';
+        }
+        
+        form.addEventListener('submit', login);
+    </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
-const { Client, Account } = Appwrite;
+const { Client, Account, ID } = Appwrite;
 
 const client = new Client();
-client.setEndpoint('https://cloud.appwrite.io/v1').setProject('65eb3e280039fdf7e677');
+client.setEndpoint('https://cloud.appwrite.io/v1').setProject('68eb3e280039fdf7e677');
 
 const account = new Account(client);
 const loginForm = document.getElementById('loginForm');
@@ -25,18 +25,45 @@ loginForm.addEventListener('submit', async (e) => {
     loginBtn.innerHTML = 'جاري تسجيل الدخول...';
     
     try {
+        // Try to login first
         await account.createEmailPasswordSession(email, password);
         const user = await account.get();
         localStorage.setItem('admin_user', JSON.stringify(user));
-        showAlert(' تم تسجيل الدخول بنجاح!', 'success');
+        showAlert('✅ تم تسجيل الدخول بنجاح!', 'success');
         setTimeout(() => window.location.href = 'dashboard.html', 1000);
     } catch (error) {
-        let msg = 'فشل تسجيل الدخول';
-        if (error.code === 401) msg = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
-        else if (error.message) msg = error.message;
-        showAlert(' ' + msg, 'error');
+        // If login fails with 401, try to create account
+        if (error.code === 401) {
+            try {
+                loginBtn.innerHTML = 'جاري إنشاء الحساب...';
+                // Create account
+                await account.create(ID.unique(), email, password, 'مدير مياسه ستيل');
+                showAlert('✅ تم إنشاء الحساب! جاري تسجيل الدخول...', 'success');
+                
+                // Now login with the new account
+                setTimeout(async () => {
+                    try {
+                        await account.createEmailPasswordSession(email, password);
+                        const user = await account.get();
+                        localStorage.setItem('admin_user', JSON.stringify(user));
+                        window.location.href = 'dashboard.html';
+                    } catch (loginError) {
+                        showAlert('❌ فشل تسجيل الدخول بعد إنشاء الحساب', 'error');
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = 'تسجيل الدخول';
+                    }
+                }, 2000);
+                return;
+            } catch (createError) {
+                showAlert('❌ فشل إنشاء الحساب: ' + (createError.message || 'خطأ غير معروف'), 'error');
+            }
+        } else {
+            let msg = 'فشل تسجيل الدخول';
+            if (error.message) msg = error.message;
+            showAlert('❌ ' + msg, 'error');
+        }
         loginBtn.disabled = false;
-        loginBtn.innerHTML = 'تسجيل الدخول ';
+        loginBtn.innerHTML = 'تسجيل الدخول';
     }
 });
 
