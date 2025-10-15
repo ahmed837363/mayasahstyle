@@ -140,6 +140,10 @@
   </style>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Moyasar Payment Gateway SDK -->
+    <script src="https://cdn.moyasar.com/mpf/1.14.0/moyasar.js"></script>
+    
     <!-- debug inline CSS removed -->
 </head>
 <body>
@@ -296,62 +300,22 @@
                 </div>
 
                 <div class="payment-methods">
+                  <!-- Card Payment via Moyasar -->
                   <div class="payment-option">
-                    <input type="radio" id="mada" name="paymentMethod" value="mada" class="payment-radio" checked>
-                    <label for="mada" class="payment-label">
+                    <input type="radio" id="card" name="paymentMethod" value="card" class="payment-radio" checked>
+                    <label for="card" class="payment-label">
                       <div class="payment-icon">
                         <i class="fas fa-credit-card"></i>
                       </div>
                       <div class="payment-info">
-                        <div class="payment-name" data-translate="madaCard">بطاقة مدى</div>
-                        <div class="payment-desc" data-translate="madaDesc">بطاقة مدى المحلية</div>
+                        <div class="payment-name" data-translate="cardPayment">الدفع ببطاقة الائتمان</div>
+                        <div class="payment-desc" data-translate="cardPaymentDesc">مدى • فيزا • ماستركارد • Apple Pay</div>
                       </div>
                       <div class="payment-check"></div>
                     </label>
                   </div>
 
-                  <div class="payment-option">
-                    <input type="radio" id="visa" name="paymentMethod" value="visa" class="payment-radio">
-                    <label for="visa" class="payment-label">
-                      <div class="payment-icon">
-                        <i class="fab fa-cc-visa"></i>
-                      </div>
-                      <div class="payment-info">
-                        <div class="payment-name" data-translate="visaCard">فيزا / ماستركارد</div>
-                        <div class="payment-desc" data-translate="visaDesc">بطاقات دولية</div>
-                      </div>
-                      <div class="payment-check"></div>
-                    </label>
-                  </div>
-
-                  <div class="payment-option">
-                    <input type="radio" id="applepay" name="paymentMethod" value="applepay" class="payment-radio">
-                    <label for="applepay" class="payment-label">
-                      <div class="payment-icon">
-                        <i class="fab fa-apple-pay"></i>
-                      </div>
-                      <div class="payment-info">
-                        <div class="payment-name" data-translate="applePay">Apple Pay</div>
-                        <div class="payment-desc" data-translate="applePayDesc">الدفع السريع</div>
-                      </div>
-                      <div class="payment-check"></div>
-                    </label>
-                  </div>
-
-                  <div class="payment-option">
-                    <input type="radio" id="stcpay" name="paymentMethod" value="stcpay" class="payment-radio">
-                    <label for="stcpay" class="payment-label">
-                      <div class="payment-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                      </div>
-                      <div class="payment-info">
-                        <div class="payment-name" data-translate="stcPay">STC Pay</div>
-                        <div class="payment-desc" data-translate="stcPayDesc">المحفظة الرقمية</div>
-                      </div>
-                      <div class="payment-check"></div>
-                    </label>
-                  </div>
-
+                  <!-- Cash on Delivery -->
                   <div class="payment-option">
                     <input type="radio" id="cod" name="paymentMethod" value="cod" class="payment-radio">
                     <label for="cod" class="payment-label">
@@ -367,7 +331,14 @@
                   </div>
                 </div>
 
-                <!-- Card inputs removed to prevent collecting card data on-site. Hosted checkout will be used for card methods. -->
+                <!-- Moyasar Payment Form Container -->
+                <div id="moyasar-payment-form" class="moyasar-container" style="margin-top: 20px; display: none;">
+                  <div class="moyasar-info">
+                    <i class="fas fa-lock"></i>
+                    <span data-translate="securePayment">الدفع آمن ومشفر بالكامل</span>
+                  </div>
+                  <!-- Moyasar will inject payment form here -->
+                </div>
 
                 <!-- STC Pay form (mobile number) -->
                 <div id="stcPayForm" class="card-details hidden">
@@ -551,6 +522,7 @@
 </footer>
 
     <script src="script.js?v=1760000941"></script>
+    <script src="moyasar-payment.js"></script>
     <script src="checkout.js"></script>
   <script>
     console.log('checkout.html (v6) loaded — ' + new Date().toISOString());

@@ -1818,50 +1818,54 @@ function clearSavedFormData() {
 // Payment Methods Functions
 function setupPaymentMethods() {
     const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
-    const cardDetailsForm = document.getElementById('cardDetailsForm');
     
-    // Show/hide card details based on payment method
+    // Initialize Moyasar payment form
+    if (typeof window.MoyasarPayment !== 'undefined') {
+        try {
+            window.moyasarInstance = window.MoyasarPayment.init();
+            console.log('✓ Moyasar payment initialized');
+        } catch (e) {
+            console.error('Failed to initialize Moyasar:', e);
+        }
+    }
+    
+    // Show/hide Moyasar form based on payment method
     paymentMethodRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            updateCardFormVisibility();
+            updateMoyasarFormVisibility();
             updatePaymentButtonText();
         });
     });
     
-    // Setup card input formatting
-    setupCardInputFormatting();
-    
     // Initial setup
-    updateCardFormVisibility();
+    updateMoyasarFormVisibility();
     updatePaymentButtonText();
 }
 
-function updateCardFormVisibility() {
+function updateMoyasarFormVisibility() {
     const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
-    const cardDetailsForm = document.getElementById('cardDetailsForm');
-    const stcForm = document.getElementById('stcPayForm');
-    const appleInfo = document.getElementById('applePayInfo');
+    const moyasarForm = document.getElementById('moyasar-payment-form');
 
-    if (!selectedMethod) return;
+    if (!selectedMethod || !moyasarForm) return;
 
-    // By default we use a hosted payment gateway for card methods.
-    // Only show local card inputs when you explicitly enable FORCE_CLIENT_CARD (for testing).
-    const requiresCard = ['mada', 'visa'].includes(selectedMethod.value) && !!window.FORCE_CLIENT_CARD;
-
-    // Card inputs
-    if (cardDetailsForm) {
-        if (requiresCard) cardDetailsForm.classList.remove('hidden'); else cardDetailsForm.classList.add('hidden');
+    // Show Moyasar form only for card payment
+    if (selectedMethod.value === 'card') {
+        moyasarForm.style.display = 'block';
+        
+        // Update Moyasar amount
+        if (typeof window.MoyasarPayment !== 'undefined') {
+            const total = parseFloat(document.getElementById('orderTotal')?.textContent?.replace(/[^\d.]/g, '') || 0);
+            window.MoyasarPayment.updateAmount(total);
+        }
+    } else {
+        moyasarForm.style.display = 'none';
     }
+}
 
-    // STC Pay inputs
-    if (stcForm) {
-        if (selectedMethod.value === 'stcpay') stcForm.classList.remove('hidden'); else stcForm.classList.add('hidden');
-    }
-
-    // Apple Pay info
-    if (appleInfo) {
-        if (selectedMethod.value === 'applepay') appleInfo.classList.remove('hidden'); else appleInfo.classList.add('hidden');
-    }
+function updateCardFormVisibility() {
+    // This function is kept for backwards compatibility
+    // but now we use Moyasar hosted form instead
+    updateMoyasarFormVisibility();
 }
 
 function updatePaymentButtonText() {
@@ -1877,50 +1881,14 @@ function updatePaymentButtonText() {
         case 'cod':
             buttonText = lang === 'ar' ? 'تأكيد الطلب' : 'Confirm Order';
             break;
-        case 'applepay':
-            buttonText = lang === 'ar' ? 'ادفع بـ Apple Pay' : 'Pay with Apple Pay';
-            break;
-        case 'stcpay':
-            buttonText = lang === 'ar' ? 'ادفع بـ STC Pay' : 'Pay with STC Pay';
+        case 'card':
+            buttonText = lang === 'ar' ? 'ادفع الآن' : 'Pay Now';
             break;
         default:
-            buttonText = lang === 'ar' ? 'ادفع الآن' : 'Pay Now';
+            buttonText = lang === 'ar' ? 'تأكيد الطلب' : 'Confirm Order';
     }
     
     payButton.textContent = buttonText;
-}
-
-function setupCardInputFormatting() {
-    const cardNumber = document.getElementById('cardNumber');
-    const expiryDate = document.getElementById('expiryDate');
-    const cvv = document.getElementById('cvv');
-    
-    // Card number formatting
-    if (cardNumber) {
-        cardNumber.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-            e.target.value = value;
-        });
-    }
-    
-    // Expiry date formatting
-    if (expiryDate) {
-        expiryDate.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2, 4);
-            }
-            e.target.value = value;
-        });
-    }
-    
-    // CVV formatting (numbers only)
-    if (cvv) {
-        cvv.addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '');
-        });
-    }
 }
 
 function validatePaymentMethod() {
