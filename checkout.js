@@ -1689,55 +1689,56 @@ async function sendOrderToServer(orderData) {
     }
 }
 
-// Send emails using Appwrite Messaging
+// Send emails using Brevo API
 async function sendEmailsViaBrevo(orderData, orderId) {
+    // Check if Brevo API key is configured
+    if (!window.BREVO_API_KEY) {
+        console.error('Brevo API key not configured');
+        throw new Error('Brevo API key not configured. Please set window.BREVO_API_KEY in config.js');
+    }
+    
     const lang = orderData.language || 'ar';
     
-    // Initialize Appwrite Messaging
-    const { Client, Messaging } = Appwrite;
-    const client = new Client();
-    
-    client
-        .setEndpoint('https://cloud.appwrite.io/v1')
-        .setProject(window.APPWRITE_PROJECT_ID || '68eb3e280039fdf7e677');
-    
-    const messaging = new Messaging(client);
-    
-    // Send customer invoice email
+    // Build email content
     const customerEmailContent = buildCustomerEmailHTML(orderData, orderId, lang);
-    await messaging.createEmail(
-        'unique()',
-        customerEmailContent.subject,
-        customerEmailContent.html,
-        [],
-        [orderData.customer_email],
-        [],
-        [],
-        [],
-        [],
-        false,
-        customerEmailContent.html,
-        [],
-        window.APPWRITE_EMAIL_PROVIDER_ID || '68ef2c89002aece534f2'
-    );
+    const ownerEmailContent = buildOwnerEmailHTML(orderData, orderId);
+    
+    // Send customer email
+    await sendBrevoEmail({
+        sender: { name: lang === 'ar' ? 'مياسه ستيل' : 'Mayasah Style', email: 'mayasahstyle@gmail.com' },
+        to: [{ email: orderData.customer_email, name: orderData.customer_name }],
+        subject: customerEmailContent.subject,
+        htmlContent: customerEmailContent.html
+    });
     
     // Send owner notification email
-    const ownerEmailContent = buildOwnerEmailHTML(orderData, orderId);
-    await messaging.createEmail(
-        'unique()',
-        ownerEmailContent.subject,
-        ownerEmailContent.html,
-        [],
-        ['mayasahstyle@gmail.com'],
-        [],
-        [],
-        [],
-        [],
-        false,
-        ownerEmailContent.html,
-        [],
-        window.APPWRITE_EMAIL_PROVIDER_ID || '68ef2c89002aece534f2'
-    );
+    await sendBrevoEmail({
+        sender: { name: 'Mayasah Style System', email: 'mayasahstyle@gmail.com' },
+        to: [{ email: 'mayasahstyle@gmail.com', name: 'Mayasah Style' }],
+        subject: ownerEmailContent.subject,
+        htmlContent: ownerEmailContent.html
+    });
+}
+
+// Send email via Brevo API
+async function sendBrevoEmail(emailData) {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'api-key': window.BREVO_API_KEY,
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify(emailData)
+    });
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Brevo API error:', errorText);
+        throw new Error(`Brevo API error: ${response.status} - ${errorText}`);
+    }
+    
+    return await response.json();
 }
 
 // Build customer email HTML content
