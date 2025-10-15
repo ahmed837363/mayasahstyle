@@ -1602,43 +1602,74 @@ function hideLoadingState() {
 // Send order to backend and return { success: boolean, data?, error? }
 async function sendOrderToServer(orderData) {
     try {
-        console.log('sendOrderToServer: sending to Azure Function');
-        const controller = new AbortController();
-        const timeoutMs = 30000; // 30 seconds for Azure Function
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-        // Azure Function endpoint
-        // IMPORTANT: After deploying to Azure, update this URL to your actual Azure Static Web App URL
-        // Example: 'https://mayasahstyle.azurestaticapps.net/api/processOrder'
-        const AZURE_FUNCTION_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:7071/api/processOrder'  // Local testing
-            : '/api/processOrder';  // Production (relative URL works with Static Web Apps)
+        console.log('sendOrderToServer: saving order to Appwrite database');
         
-        const response = await fetch(AZURE_FUNCTION_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData),
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            const text = await response.text().catch(() => null);
-            return { success: false, data: text || `HTTP ${response.status}` };
-        }
-
-        const data = await response.json().catch(() => null);
-        if (data && data.success) {
-            console.log('✓ Order processed successfully:', data.order_id);
-            return { success: true, data };
-        }
-        return { success: false, data };
+        // Initialize Appwrite client
+        const { Client, Databases, ID } = Appwrite;
+        const client = new Client();
+        
+        client
+            .setEndpoint('https://cloud.appwrite.io/v1')
+            .setProject('68eb3e280039fdf7e677');
+        
+        const databases = new Databases(client);
+        
+        // Generate order ID
+        const orderId = 'ORD' + Date.now() + Math.floor(Math.random() * 1000);
+        
+        // Prepare order document
+        const orderDoc = {
+            order_id: orderId,
+            customer_name: orderData.customer_name,
+            customer_email: orderData.customer_email,
+            customer_phone: orderData.customer_phone,
+            address: orderData.address || '',
+            city: orderData.city || '',
+            zip_code: orderData.zip_code || '',
+            notes: orderData.notes || '',
+            items: JSON.stringify(orderData.items),
+            subtotal: parseFloat(orderData.subtotal || 0),
+            tax: parseFloat(orderData.tax || 0),
+            shipping_cost: parseFloat(orderData.shipping_cost || 0),
+            total: parseFloat(orderData.total || 0),
+            payment_method: orderData.payment_method || 'cod',
+            payment_status: orderData.payment_status || 'pending',
+            transaction_id: orderData.transaction_id || '',
+            language: orderData.language || 'ar',
+            order_date: new Date().toISOString(),
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            email_sent: false
+        };
+        
+        // Save to Appwrite
+        const savedOrder = await databases.createDocument(
+            '68eb4036002db50c7171', // Database ID
+            'orders', // Collection ID
+            ID.unique(),
+            orderDoc
+        );
+        
+        console.log('✓ Order saved to Appwrite:', orderId);
+        
+        // TODO: Send email notification (will be handled by Appwrite Function)
+        // For now, just return success
+        
+        return { 
+            success: true, 
+            data: {
+                order_id: orderId,
+                appwrite_id: savedOrder.$id,
+                message: 'Order saved successfully'
+            }
+        };
+        
     } catch (err) {
-        if (err.name === 'AbortError') {
-            return { success: false, error: 'timeout' };
-        }
-        return { success: false, error: err.message || err };
+        console.error('Error saving order:', err);
+        return { 
+            success: false, 
+            error: err.message || 'Failed to save order' 
+        };
     }
 }
 
