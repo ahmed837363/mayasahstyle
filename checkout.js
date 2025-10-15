@@ -1689,49 +1689,59 @@ async function sendOrderToServer(orderData) {
     }
 }
 
-// Send emails using Brevo API
+// Send emails using Appwrite Messaging
 async function sendEmailsViaBrevo(orderData, orderId) {
-    // Check if Brevo API key is configured
-    if (!window.BREVO_API_KEY) {
-        console.warn('Brevo API key not configured. Set window.BREVO_API_KEY in your script.');
-        throw new Error('Brevo API key not configured');
-    }
-    
     const lang = orderData.language || 'ar';
     
-    // Prepare email data
-    const customerEmail = buildCustomerEmail(orderData, orderId, lang);
-    const ownerEmail = buildOwnerEmail(orderData, orderId, lang);
+    // Initialize Appwrite Messaging
+    const { Client, Messaging } = Appwrite;
+    const client = new Client();
     
-    // Send customer email
-    await sendBrevoEmail(customerEmail);
+    client
+        .setEndpoint('https://cloud.appwrite.io/v1')
+        .setProject(window.APPWRITE_PROJECT_ID || '68eb3e280039fdf7e677');
+    
+    const messaging = new Messaging(client);
+    
+    // Send customer invoice email
+    const customerEmailContent = buildCustomerEmailHTML(orderData, orderId, lang);
+    await messaging.createEmail(
+        'unique()',
+        customerEmailContent.subject,
+        customerEmailContent.html,
+        [],
+        [orderData.customer_email],
+        [],
+        [],
+        [],
+        [],
+        false,
+        customerEmailContent.html,
+        [],
+        window.APPWRITE_EMAIL_PROVIDER_ID || '68ef2c89002aece534f2'
+    );
     
     // Send owner notification email
-    await sendBrevoEmail(ownerEmail);
+    const ownerEmailContent = buildOwnerEmailHTML(orderData, orderId);
+    await messaging.createEmail(
+        'unique()',
+        ownerEmailContent.subject,
+        ownerEmailContent.html,
+        [],
+        ['mayasahstyle@gmail.com'],
+        [],
+        [],
+        [],
+        [],
+        false,
+        ownerEmailContent.html,
+        [],
+        window.APPWRITE_EMAIL_PROVIDER_ID || '68ef2c89002aece534f2'
+    );
 }
 
-// Send email via Brevo API
-async function sendBrevoEmail(emailData) {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'api-key': window.BREVO_API_KEY,
-            'content-type': 'application/json'
-        },
-        body: JSON.stringify(emailData)
-    });
-    
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Brevo API error: ${error}`);
-    }
-    
-    return await response.json();
-}
-
-// Build customer email content
-function buildCustomerEmail(orderData, orderId, lang) {
+// Build customer email HTML content
+function buildCustomerEmailHTML(orderData, orderId, lang) {
     const isArabic = lang === 'ar';
     const subject = isArabic 
         ? `فاتورة الطلب ${orderId} - مياسه ستيل`
@@ -1866,23 +1876,13 @@ function buildCustomerEmail(orderData, orderId, lang) {
 </html>`;
     
     return {
-        sender: {
-            name: isArabic ? 'مياسه ستيل' : 'Mayasah Style',
-            email: 'mayasahstyle@gmail.com'
-        },
-        to: [
-            {
-                email: orderData.customer_email,
-                name: orderData.customer_name
-            }
-        ],
         subject: subject,
-        htmlContent: htmlContent
+        html: htmlContent
     };
 }
 
-// Build owner notification email
-function buildOwnerEmail(orderData, orderId, lang) {
+// Build owner notification email HTML
+function buildOwnerEmailHTML(orderData, orderId) {
     const itemsHtml = orderData.items.map(item => `
         <tr style="border-bottom: 1px solid #e0e0e0;">
             <td style="padding: 12px; text-align: right;">${item.name}</td>
@@ -2008,18 +2008,8 @@ function buildOwnerEmail(orderData, orderId, lang) {
 </html>`;
     
     return {
-        sender: {
-            name: 'Mayasah Style System',
-            email: 'mayasahstyle@gmail.com'
-        },
-        to: [
-            {
-                email: 'mayasahstyle@gmail.com', // Owner's email
-                name: 'Mayasah Style'
-            }
-        ],
         subject: `🛍️ طلب جديد ${orderId} - ${orderData.order_total.toFixed(2)} ر.س`,
-        htmlContent: htmlContent
+        html: htmlContent
     };
 }
 
