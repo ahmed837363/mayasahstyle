@@ -1691,11 +1691,26 @@ async function sendOrderToServer(orderData) {
 
 // Send emails using Brevo API
 async function sendEmailsViaBrevo(orderData, orderId) {
-    // Check if Brevo API key is configured
-    if (!window.BREVO_API_KEY) {
-        console.error('Brevo API key not configured');
+    // Wait for config.js to finish loading and decoding the API key
+    // Check multiple times with delays to handle async loading
+    let apiKey = window.BREVO_API_KEY;
+    let attempts = 0;
+    
+    while (!apiKey && attempts < 10) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        apiKey = window.BREVO_API_KEY;
+        attempts++;
+        console.log(`Waiting for BREVO_API_KEY... attempt ${attempts}`);
+    }
+    
+    // Check if Brevo API key is configured after waiting
+    if (!apiKey) {
+        console.error('Brevo API key not configured after waiting');
+        console.error('window.BREVO_API_KEY_ENCODED:', window.BREVO_API_KEY_ENCODED);
         throw new Error('Brevo API key not configured. Please set window.BREVO_API_KEY in config.js');
     }
+    
+    console.log('✓ Using Brevo API key for email sending');
     
     const lang = orderData.language || 'ar';
     
