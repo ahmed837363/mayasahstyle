@@ -16,7 +16,7 @@ window.APPWRITE_DATABASE_ID = '68eb4036002db50c7171';
 // 2. Edit this file directly on GitHub website
 // 3. Replace XXXXX below with your actual Brevo API key from https://app.brevo.com/settings/keys/api
 // 4. Commit the change
-window.BREVO_API_KEY = 'xsmtpsib-540d019242fbe11a7688d2f104bd6e9ad12a6284bbd411d4fa35c2ff1b32d36b-yGZ95LjM40k3PdIx';
+window.BREVO_API_KEY = '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';
 
 if (window.BREVO_API_KEY && window.BREVO_API_KEY.indexOf('XXXXX') === -1) {
     console.log('✓ Brevo API key configured');
