@@ -525,10 +525,22 @@
 </footer>
 
     <!-- Load configuration first (contains API keys) -->
-    <script src="config.js?v=20251015"></script>
+    <script src="config.js?v=20251015-2"></script>
+    <script>
+        // Debug: Verify config loaded
+        setTimeout(function() {
+            console.log('Checking if config loaded...');
+            if (typeof window.BREVO_API_KEY !== 'undefined' && window.BREVO_API_KEY) {
+                console.log('✓ Config loaded successfully. API Key found:', window.BREVO_API_KEY.substring(0, 20) + '...');
+            } else {
+                console.error('✗ BREVO_API_KEY not defined! Config.js may not have loaded.');
+                console.error('window.BREVO_API_KEY_ENCODED =', window.BREVO_API_KEY_ENCODED);
+            }
+        }, 100);
+    </script>
     <script src="script.js?v=1760000941"></script>
     <script src="moyasar-payment.js?v=20251015"></script>
-    <script src="checkout.js?v=20251015"></script>
+    <script src="checkout.js?v=20251015-2"></script>
   <script>
     console.log('checkout.html (v6) loaded — ' + new Date().toISOString());
     // Set progress overlay width based on active steps
