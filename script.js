@@ -1,9 +1,9 @@
 // ========================================
 // 🔑 Brevo Email API Configuration
 // ========================================
-// IMPORTANT: For security, move this to a separate config.js file that is NOT pushed to GitHub
-// Add config.js to .gitignore to keep your API key safe
-window.BREVO_API_KEY = ''; // Set this in config.js (see config.example.js)
+// IMPORTANT: API keys are loaded from config.js
+// DO NOT set window.BREVO_API_KEY here - it will overwrite the key from config.js!
+// The key is set in config.js which loads before this script
 
 // ========================================
 // Language Switching - Full Translation System
