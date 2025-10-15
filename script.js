@@ -1,4 +1,13 @@
+// ========================================
+// 🔑 Brevo Email API Configuration
+// ========================================
+// IMPORTANT: For security, move this to a separate config.js file that is NOT pushed to GitHub
+// Add config.js to .gitignore to keep your API key safe
+window.BREVO_API_KEY = ''; // Set this in config.js (see config.example.js)
+
+// ========================================
 // Language Switching - Full Translation System
+// ========================================
 function translatePage(lang) {
     // First handle all elements with translation spans
     document.querySelectorAll('[data-translate-ar], [data-translate-en]').forEach(span => {

@@ -10,3 +10,9 @@ backend/
 # Ignore system files
 .DS_Store
 Thumbs.db
+
+# 🔐 SECURITY: Ignore config files with API keys
+config.js
+*.secret.js
+.env
+.env.local

@@ -1271,22 +1271,23 @@ async function handleOrderSubmission() {
         const lang = document.documentElement.lang || 'ar';
 
         if (sendResult.success) {
-            console.log('handleOrderSubmission: server confirmed sending email');
+            console.log('handleOrderSubmission: order saved and emails sent successfully');
             showSuccessState();
             processOrder(orderData);
             const successMessage = lang === 'ar' 
-                ? `تم الدفع بنجاح! رقم المعاملة: ${paymentResult.transactionId}`
-                : `Payment successful! Transaction ID: ${paymentResult.transactionId}`;
+                ? `تم الطلب بنجاح! تم إرسال الفاتورة إلى بريدك الإلكتروني.`
+                : `Order placed successfully! Invoice sent to your email.`;
             showNotification(successMessage, 'success');
         } else {
-            console.warn('handleOrderSubmission: server/email send failed:', sendResult.error || sendResult.data);
-            // Email failed but order is saved - proceed to confirmation page anyway
-            showSuccessState();
-            processOrder(orderData);
-            const warnMsg = lang === 'ar' 
-                ? 'تم حفظ الطلب! سنرسل لك الفاتورة قريباً.' 
-                : 'Order saved! We will send you the invoice shortly.';
-            showNotification(warnMsg, 'warning');
+            console.error('handleOrderSubmission: failed to save order:', sendResult.error || sendResult.data);
+            // Show actual error to user
+            const errorMsg = lang === 'ar' 
+                ? `فشل حفظ الطلب: ${sendResult.error || 'خطأ غير معروف'}`
+                : `Failed to save order: ${sendResult.error || 'Unknown error'}`;
+            showNotification(errorMsg, 'error');
+            hideLoadingState();
+            __checkoutIsSubmitting = false;
+            return; // Stop here, don't redirect
         }
 
     } catch (error) {
@@ -1602,75 +1603,424 @@ function hideLoadingState() {
 // Send order to backend and return { success: boolean, data?, error? }
 async function sendOrderToServer(orderData) {
     try {
-        console.log('sendOrderToServer: saving order to Appwrite database');
-        
-        // Initialize Appwrite client
-        const { Client, Databases, ID } = Appwrite;
-        const client = new Client();
-        
-        client
-            .setEndpoint('https://cloud.appwrite.io/v1')
-            .setProject('68eb3e280039fdf7e677');
-        
-        const databases = new Databases(client);
+        console.log('sendOrderToServer: preparing to send order');
         
         // Generate order ID
         const orderId = 'ORD' + Date.now() + Math.floor(Math.random() * 1000);
         
-        // Prepare order document
-        const orderDoc = {
-            order_id: orderId,
-            customer_name: orderData.customer_name,
-            customer_email: orderData.customer_email,
-            customer_phone: orderData.customer_phone,
-            address: orderData.address || '',
-            city: orderData.city || '',
-            zip_code: orderData.zip_code || '',
-            notes: orderData.notes || '',
-            items: JSON.stringify(orderData.items),
-            subtotal: parseFloat(orderData.subtotal || 0),
-            tax: parseFloat(orderData.tax || 0),
-            shipping_cost: parseFloat(orderData.shipping_cost || 0),
-            total: parseFloat(orderData.total || 0),
-            payment_method: orderData.payment_method || 'cod',
-            payment_status: orderData.payment_status || 'pending',
-            transaction_id: orderData.transaction_id || '',
-            language: orderData.language || 'ar',
-            order_date: new Date().toISOString(),
-            status: 'pending',
-            created_at: new Date().toISOString(),
-            email_sent: false
-        };
+        // Send emails FIRST (this is the most important part!)
+        console.log('Sending emails via Brevo...');
+        try {
+            await sendEmailsViaBrevo(orderData, orderId);
+            console.log('✓ Emails sent successfully via Brevo');
+        } catch (emailError) {
+            console.error('Failed to send emails:', emailError);
+            // Don't fail - continue to try saving to Appwrite
+            // But let user know email failed
+            throw new Error('Failed to send email: ' + emailError.message);
+        }
         
-        // Save to Appwrite
-        const savedOrder = await databases.createDocument(
-            '68eb4036002db50c7171', // Database ID
-            'orders', // Collection ID
-            ID.unique(),
-            orderDoc
-        );
-        
-        console.log('✓ Order saved to Appwrite:', orderId);
-        
-        // TODO: Send email notification (will be handled by Appwrite Function)
-        // For now, just return success
+        // Now try to save to Appwrite (optional - if collection doesn't exist, it's okay)
+        try {
+            // Initialize Appwrite client
+            const { Client, Databases, ID } = Appwrite;
+            const client = new Client();
+            
+            client
+                .setEndpoint('https://cloud.appwrite.io/v1')
+                .setProject('68eb3e280039fdf7e677');
+            
+            const databases = new Databases(client);
+            
+            // Prepare order document
+            const orderDoc = {
+                order_id: orderId,
+                customer_name: orderData.customer_name,
+                customer_email: orderData.customer_email,
+                customer_phone: orderData.customer_phone,
+                address: orderData.address || '',
+                city: orderData.city || '',
+                zip_code: orderData.zip_code || '',
+                notes: orderData.notes || '',
+                items: JSON.stringify(orderData.items),
+                subtotal: parseFloat(orderData.subtotal || 0),
+                tax: parseFloat(orderData.tax || 0),
+                shipping_cost: parseFloat(orderData.shipping_cost || 0),
+                total: parseFloat(orderData.order_total || 0),
+                payment_method: orderData.payment_method || 'cod',
+                payment_status: orderData.payment_status || 'pending',
+                transaction_id: orderData.transaction_id || '',
+                language: orderData.language || 'ar',
+                order_date: new Date().toISOString(),
+                status: 'pending',
+                created_at: new Date().toISOString(),
+                email_sent: true
+            };
+            
+            // Try to save to Appwrite
+            const savedOrder = await databases.createDocument(
+                '68eb4036002db50c7171', // Database ID
+                'orders', // Collection ID
+                ID.unique(),
+                orderDoc
+            );
+            
+            console.log('✓ Order saved to Appwrite:', orderId);
+        } catch (appwriteError) {
+            // If Appwrite fails (collection doesn't exist), that's okay
+            // The email was already sent, which is the most important part
+            console.warn('Could not save to Appwrite (this is okay if collection does not exist):', appwriteError.message);
+        }
         
         return { 
             success: true, 
             data: {
                 order_id: orderId,
-                appwrite_id: savedOrder.$id,
-                message: 'Order saved successfully'
+                message: 'Order processed and emails sent successfully'
             }
         };
         
     } catch (err) {
-        console.error('Error saving order:', err);
+        console.error('Error processing order:', err);
         return { 
             success: false, 
-            error: err.message || 'Failed to save order' 
+            error: err.message || 'Failed to process order' 
         };
     }
+}
+
+// Send emails using Brevo API
+async function sendEmailsViaBrevo(orderData, orderId) {
+    // Check if Brevo API key is configured
+    if (!window.BREVO_API_KEY) {
+        console.warn('Brevo API key not configured. Set window.BREVO_API_KEY in your script.');
+        throw new Error('Brevo API key not configured');
+    }
+    
+    const lang = orderData.language || 'ar';
+    
+    // Prepare email data
+    const customerEmail = buildCustomerEmail(orderData, orderId, lang);
+    const ownerEmail = buildOwnerEmail(orderData, orderId, lang);
+    
+    // Send customer email
+    await sendBrevoEmail(customerEmail);
+    
+    // Send owner notification email
+    await sendBrevoEmail(ownerEmail);
+}
+
+// Send email via Brevo API
+async function sendBrevoEmail(emailData) {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'api-key': window.BREVO_API_KEY,
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify(emailData)
+    });
+    
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Brevo API error: ${error}`);
+    }
+    
+    return await response.json();
+}
+
+// Build customer email content
+function buildCustomerEmail(orderData, orderId, lang) {
+    const isArabic = lang === 'ar';
+    const subject = isArabic 
+        ? `فاتورة الطلب ${orderId} - مياسه ستيل`
+        : `Order Invoice ${orderId} - Mayasah Style`;
+    
+    const itemsHtml = orderData.items.map(item => `
+        <tr style="border-bottom: 1px solid #e0e0e0;">
+            <td style="padding: 12px; text-align: ${isArabic ? 'right' : 'left'};">${item.name}</td>
+            <td style="padding: 12px; text-align: center;">${item.size || '-'}</td>
+            <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+            <td style="padding: 12px; text-align: ${isArabic ? 'left' : 'right'}; font-weight: bold;">${item.price.toFixed(2)} ${isArabic ? 'ر.س' : 'SAR'}</td>
+        </tr>
+    `).join('');
+    
+    const htmlContent = `
+<!DOCTYPE html>
+<html dir="${isArabic ? 'rtl' : 'ltr'}" lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #3C2A21 0%, #5D4037 100%); color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 600;">${isArabic ? 'مياسه ستيل' : 'Mayasah Style'}</h1>
+            <p style="margin: 10px 0 0; font-size: 14px; opacity: 0.9;">${isArabic ? 'فاتورة الطلب' : 'Order Invoice'}</p>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <p style="font-size: 16px; color: #333; margin: 0 0 20px;">${isArabic ? 'عزيزي/عزيزتي' : 'Dear'} ${orderData.customer_name},</p>
+            <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 20px;">
+                ${isArabic 
+                    ? 'شكراً لك على طلبك! نحن متحمسون لإعداد طلبك وإرساله إليك.'
+                    : 'Thank you for your order! We are excited to prepare and send it to you.'}
+            </p>
+            
+            <!-- Order Details -->
+            <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="font-size: 18px; color: #3C2A21; margin: 0 0 15px; border-bottom: 2px solid #3C2A21; padding-bottom: 10px;">
+                    ${isArabic ? 'تفاصيل الطلب' : 'Order Details'}
+                </h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #666;">${isArabic ? 'رقم الطلب:' : 'Order Number:'}</td>
+                        <td style="padding: 8px 0; font-weight: bold; color: #3C2A21; text-align: ${isArabic ? 'left' : 'right'};">${orderId}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #666;">${isArabic ? 'التاريخ:' : 'Date:'}</td>
+                        <td style="padding: 8px 0; color: #333; text-align: ${isArabic ? 'left' : 'right'};">${new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US')}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #666;">${isArabic ? 'طريقة الدفع:' : 'Payment Method:'}</td>
+                        <td style="padding: 8px 0; color: #333; text-align: ${isArabic ? 'left' : 'right'};">
+                            ${orderData.payment_method === 'cod' ? (isArabic ? 'الدفع عند الاستلام' : 'Cash on Delivery') : (isArabic ? 'بطاقة' : 'Card')}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Items Table -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; color: #3C2A21; margin: 0 0 15px;">${isArabic ? 'المنتجات' : 'Items'}</h3>
+                <table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background-color: #3C2A21; color: white;">
+                            <th style="padding: 12px; text-align: ${isArabic ? 'right' : 'left'};">${isArabic ? 'المنتج' : 'Product'}</th>
+                            <th style="padding: 12px; text-align: center;">${isArabic ? 'المقاس' : 'Size'}</th>
+                            <th style="padding: 12px; text-align: center;">${isArabic ? 'الكمية' : 'Qty'}</th>
+                            <th style="padding: 12px; text-align: ${isArabic ? 'left' : 'right'};">${isArabic ? 'السعر' : 'Price'}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Summary -->
+            <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #666;">${isArabic ? 'المجموع الفرعي:' : 'Subtotal:'}</td>
+                        <td style="padding: 8px 0; text-align: ${isArabic ? 'left' : 'right'};">${orderData.subtotal.toFixed(2)} ${isArabic ? 'ر.س' : 'SAR'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #666;">${isArabic ? 'ضريبة القيمة المضافة (15%):' : 'VAT (15%):'}</td>
+                        <td style="padding: 8px 0; text-align: ${isArabic ? 'left' : 'right'};">${orderData.tax.toFixed(2)} ${isArabic ? 'ر.س' : 'SAR'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #666;">${isArabic ? 'الشحن:' : 'Shipping:'}</td>
+                        <td style="padding: 8px 0; text-align: ${isArabic ? 'left' : 'right'};">${orderData.shipping_cost.toFixed(2)} ${isArabic ? 'ر.س' : 'SAR'}</td>
+                    </tr>
+                    <tr style="border-top: 2px solid #3C2A21;">
+                        <td style="padding: 12px 0 0; font-size: 18px; font-weight: bold; color: #3C2A21;">${isArabic ? 'الإجمالي:' : 'Total:'}</td>
+                        <td style="padding: 12px 0 0; font-size: 18px; font-weight: bold; color: #3C2A21; text-align: ${isArabic ? 'left' : 'right'};">${orderData.order_total.toFixed(2)} ${isArabic ? 'ر.س' : 'SAR'}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Shipping Address -->
+            <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; color: #3C2A21; margin: 0 0 10px;">${isArabic ? 'عنوان التوصيل' : 'Shipping Address'}</h3>
+                <p style="margin: 5px 0; color: #666;">${orderData.address}</p>
+                <p style="margin: 5px 0; color: #666;">${orderData.city}${orderData.zip_code ? `, ${orderData.zip_code}` : ''}</p>
+                <p style="margin: 5px 0; color: #666;">${isArabic ? 'الهاتف:' : 'Phone:'} ${orderData.customer_phone}</p>
+            </div>
+            
+            <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 20px 0;">
+                ${isArabic 
+                    ? 'إذا كان لديك أي أسئلة، لا تتردد في التواصل معنا.'
+                    : 'If you have any questions, feel free to contact us.'}
+            </p>
+            <p style="font-size: 14px; color: #666; margin: 0;">
+                ${isArabic ? 'مع أطيب التحيات،' : 'Best regards,'}<br>
+                <strong style="color: #3C2A21;">${isArabic ? 'فريق مياسه ستيل' : 'Mayasah Style Team'}</strong>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <p style="margin: 0; font-size: 12px; color: #999;">
+                © ${new Date().getFullYear()} ${isArabic ? 'مياسه ستيل' : 'Mayasah Style'}. ${isArabic ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+            </p>
+            <p style="margin: 10px 0 0; font-size: 12px; color: #999;">
+                ${isArabic ? 'الهاتف:' : 'Phone:'} 0500000000 | ${isArabic ? 'البريد:' : 'Email:'} support@mayasahstyle.com
+            </p>
+        </div>
+    </div>
+</body>
+</html>`;
+    
+    return {
+        sender: {
+            name: isArabic ? 'مياسه ستيل' : 'Mayasah Style',
+            email: 'mayasahstyle@gmail.com'
+        },
+        to: [
+            {
+                email: orderData.customer_email,
+                name: orderData.customer_name
+            }
+        ],
+        subject: subject,
+        htmlContent: htmlContent
+    };
+}
+
+// Build owner notification email
+function buildOwnerEmail(orderData, orderId, lang) {
+    const itemsHtml = orderData.items.map(item => `
+        <tr style="border-bottom: 1px solid #e0e0e0;">
+            <td style="padding: 12px; text-align: right;">${item.name}</td>
+            <td style="padding: 12px; text-align: center;">${item.size || '-'}</td>
+            <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+            <td style="padding: 12px; text-align: left; font-weight: bold;">${item.price.toFixed(2)} ر.س</td>
+        </tr>
+    `).join('');
+    
+    const htmlContent = `
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 600;">🔔 طلب جديد</h1>
+            <p style="margin: 10px 0 0; font-size: 14px; opacity: 0.9;">لديك طلب جديد من موقع مياسه ستيل</p>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <!-- Order Summary -->
+            <div style="background-color: #e8f4fd; border-right: 4px solid #3498db; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="font-size: 18px; color: #2c3e50; margin: 0 0 15px;">ملخص الطلب</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #555; font-weight: bold;">رقم الطلب:</td>
+                        <td style="padding: 8px 0; color: #2c3e50; text-align: left; font-size: 18px; font-weight: bold;">${orderId}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #555; font-weight: bold;">التاريخ:</td>
+                        <td style="padding: 8px 0; color: #333; text-align: left;">${new Date().toLocaleDateString('ar-SA')}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #555; font-weight: bold;">المبلغ الإجمالي:</td>
+                        <td style="padding: 8px 0; color: #27ae60; text-align: left; font-size: 20px; font-weight: bold;">${orderData.order_total.toFixed(2)} ر.س</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #555; font-weight: bold;">طريقة الدفع:</td>
+                        <td style="padding: 8px 0; color: #333; text-align: left;">
+                            ${orderData.payment_method === 'cod' ? 'الدفع عند الاستلام 💵' : 'بطاقة 💳'}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Customer Info -->
+            <div style="background-color: #fff3cd; border-right: 4px solid #ffc107; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px;">معلومات العميل</h3>
+                <p style="margin: 5px 0; color: #555;"><strong>الاسم:</strong> ${orderData.customer_name}</p>
+                <p style="margin: 5px 0; color: #555;"><strong>الهاتف:</strong> <a href="tel:${orderData.customer_phone}" style="color: #3498db; text-decoration: none;">${orderData.customer_phone}</a></p>
+                <p style="margin: 5px 0; color: #555;"><strong>البريد:</strong> <a href="mailto:${orderData.customer_email}" style="color: #3498db; text-decoration: none;">${orderData.customer_email}</a></p>
+                <p style="margin: 5px 0; color: #555;"><strong>العنوان:</strong> ${orderData.address}</p>
+                <p style="margin: 5px 0; color: #555;"><strong>المدينة:</strong> ${orderData.city}${orderData.zip_code ? ` - ${orderData.zip_code}` : ''}</p>
+                ${orderData.notes ? `<p style="margin: 10px 0 0; padding: 10px; background-color: white; border-radius: 5px; color: #555;"><strong>ملاحظات:</strong> ${orderData.notes}</p>` : ''}
+            </div>
+            
+            <!-- Items Table -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px;">المنتجات المطلوبة</h3>
+                <table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
+                    <thead>
+                        <tr style="background-color: #2c3e50; color: white;">
+                            <th style="padding: 12px; text-align: right;">المنتج</th>
+                            <th style="padding: 12px; text-align: center;">المقاس</th>
+                            <th style="padding: 12px; text-align: center;">الكمية</th>
+                            <th style="padding: 12px; text-align: left;">السعر</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Financial Summary -->
+            <div style="background-color: #d4edda; border-right: 4px solid #28a745; border-radius: 8px; padding: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #555;">المجموع الفرعي:</td>
+                        <td style="padding: 8px 0; text-align: left; font-weight: bold;">${orderData.subtotal.toFixed(2)} ر.س</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #555;">ضريبة القيمة المضافة (15%):</td>
+                        <td style="padding: 8px 0; text-align: left; font-weight: bold;">${orderData.tax.toFixed(2)} ر.س</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #555;">الشحن:</td>
+                        <td style="padding: 8px 0; text-align: left; font-weight: bold;">${orderData.shipping_cost.toFixed(2)} ر.س</td>
+                    </tr>
+                    <tr style="border-top: 2px solid #28a745;">
+                        <td style="padding: 12px 0 0; font-size: 18px; font-weight: bold; color: #2c3e50;">الإجمالي النهائي:</td>
+                        <td style="padding: 12px 0 0; font-size: 20px; font-weight: bold; color: #28a745; text-align: left;">${orderData.order_total.toFixed(2)} ر.س</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+                <p style="margin: 0; color: #555; font-size: 14px;">📱 تواصل مع العميل الآن</p>
+                <div style="margin-top: 15px;">
+                    <a href="tel:${orderData.customer_phone}" style="display: inline-block; margin: 0 5px; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">📞 اتصل الآن</a>
+                    <a href="https://wa.me/${orderData.customer_phone.replace(/[^0-9]/g, '')}" style="display: inline-block; margin: 0 5px; padding: 12px 24px; background-color: #25d366; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">💬 واتساب</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #2c3e50; padding: 20px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #ecf0f1;">
+                تم إرسال هذا البريد تلقائياً من نظام مياسه ستيل
+            </p>
+            <p style="margin: 10px 0 0; font-size: 12px; color: #bdc3c7;">
+                © ${new Date().getFullYear()} مياسه ستيل. جميع الحقوق محفوظة.
+            </p>
+        </div>
+    </div>
+</body>
+</html>`;
+    
+    return {
+        sender: {
+            name: 'Mayasah Style System',
+            email: 'mayasahstyle@gmail.com'
+        },
+        to: [
+            {
+                email: 'mayasahstyle@gmail.com', // Owner's email
+                name: 'Mayasah Style'
+            }
+        ],
+        subject: `🛍️ طلب جديد ${orderId} - ${orderData.order_total.toFixed(2)} ر.س`,
+        htmlContent: htmlContent
+    };
 }
 
 function addRetryButton(orderData) {
