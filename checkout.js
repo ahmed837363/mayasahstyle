@@ -1737,23 +1737,30 @@ async function sendEmailsViaBrevo(orderData, orderId) {
 
 // Send email via Brevo API
 async function sendBrevoEmail(emailData) {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    // Use Cloudflare Worker to send emails (secure - API key not exposed)
+    if (!window.EMAIL_WORKER_URL) {
+        throw new Error('Email worker URL not configured');
+    }
+    
+    console.log('Calling Cloudflare Worker at:', window.EMAIL_WORKER_URL);
+    
+    const response = await fetch(window.EMAIL_WORKER_URL, {
         method: 'POST',
         headers: {
-            'accept': 'application/json',
-            'api-key': window.BREVO_API_KEY,
-            'content-type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(emailData)
     });
     
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('Brevo API error:', errorText);
-        throw new Error(`Brevo API error: ${response.status} - ${errorText}`);
+        console.error('Worker error:', errorText);
+        throw new Error(`Worker error: ${response.status} - ${errorText}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('✓ Email sent via worker:', result);
+    return result;
 }
 
 // Build customer email HTML content
