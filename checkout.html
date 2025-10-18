@@ -525,18 +525,10 @@
 </footer>
 
     <!-- Load configuration first (contains API keys) - MUST load synchronously -->
-    <script src="config.js?v=97616ec"></script>
-    <!-- Verify config loaded before continuing -->
-    <script>
-        if (!window.BREVO_API_KEY) {
-            console.error('CRITICAL: config.js did not set BREVO_API_KEY!');
-        } else {
-            console.log('✓ Config verified. API key ready for use.');
-        }
-    </script>
+    <script src="config.js?v=cf-worker-v1"></script>
     <script src="script.js?v=1760000941"></script>
     <script src="moyasar-payment.js?v=20251015"></script>
-    <script src="checkout.js?v=97616ec"></script>
+    <script src="checkout.js?v=cf-worker-v1"></script>
   <script>
     console.log('checkout.html (v6) loaded — ' + new Date().toISOString());
     // Set progress overlay width based on active steps
