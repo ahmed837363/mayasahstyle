@@ -13,7 +13,7 @@ window.APPWRITE_DATABASE_ID = '68eb4036002db50c7171';
 // Cloudflare Worker URL for sending emails (SECURE - no API key exposed in GitHub!)
 // After you deploy the Cloudflare Worker, replace this with your worker URL
 // Example: https://mayasah-email-sender.your-subdomain.workers.dev
-window.EMAIL_WORKER_URL = 'REPLACE_WITH_YOUR_CLOUDFLARE_WORKER_URL';
+window.EMAIL_WORKER_URL = 'https://mayasah-email-sender.252001168.workers.dev/';
 
 if (window.EMAIL_WORKER_URL && window.EMAIL_WORKER_URL.indexOf('REPLACE') === -1) {
     console.log('✓ Email worker configured');
