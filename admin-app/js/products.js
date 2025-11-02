@@ -56,10 +56,21 @@ const productsModule = (() => {
         'description_en'
     ];
 
-    const attributeMap = {
-        current_stock: 'currentStock',
-        initial_stock: 'initialStock'
-    };
+        const attributeMap = {
+            current_stock: 'currentStock',
+            initial_stock: 'initialStock',
+            name_ar: 'name_ar',
+            name_en: 'name_en',
+            description_ar: 'description_ar',
+            description_en: 'description_en',
+            price: 'price',
+            discount: 'discount',
+            badge: 'badge',
+            category: 'category',
+            image: 'image',
+            imageId: 'imageId',
+            sku: 'sku'
+        };
 
     function getDocumentValue(doc, field) {
         if (!doc) return undefined;
@@ -353,6 +364,9 @@ const productsModule = (() => {
         if (payload.initial_stock !== undefined) {
             payload.initialStock = payload.initial_stock;
             delete payload.initial_stock;
+        }
+        if (payload.sku !== undefined && !payload.sku) {
+            delete payload.sku;
         }
         if (state.uploadingUrl) {
             payload.image = state.uploadingUrl;
