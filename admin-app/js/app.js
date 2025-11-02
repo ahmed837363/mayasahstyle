@@ -193,6 +193,11 @@ const appShell = (() => {
         languageToggle.addEventListener('click', () => {
             const next = getCurrentLanguage() === 'ar' ? 'en' : 'ar';
             i18n.setLanguage(next);
+            // Apply immediately in case listeners run asynchronously
+            applyLanguage(next);
+            productsModule.setLanguage?.(next, { force: true });
+            updateSalesStatDisplay();
+            setUserBadge();
         });
     }
 
