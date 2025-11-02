@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'mayasah-admin-v2';
+const CACHE_NAME = 'mayasah-admin-v3';
 const OFFLINE_URL = 'app.html';
 const CACHE_ASSETS = [
     'index.html',
