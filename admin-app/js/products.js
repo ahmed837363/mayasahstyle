@@ -146,7 +146,10 @@ const productsModule = (() => {
             renderProducts();
         } catch (error) {
             console.error('Failed to load products', error);
-            appShell.showToast(translate('toastLoadProductsError', 'تعذر تحميل المنتجات'));
+            const details = error?.response?.message
+                || (typeof error?.message === 'string' ? error.message : '');
+            const baseMessage = translate('toastLoadProductsError', 'تعذر تحميل المنتجات');
+            appShell.showToast(details ? `${baseMessage}: ${details}` : baseMessage);
         } finally {
             appShell.setLoading(false);
         }
