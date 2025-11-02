@@ -357,7 +357,9 @@ const productsModule = (() => {
             closeEditor();
         } catch (error) {
             console.error('Failed to save product', error);
-            appShell.showToast(translate('toastSaveError', 'تعذر حفظ المنتج'));
+            const details = typeof error?.message === 'string' ? error.message : '';
+            const baseMessage = translate('toastSaveError', 'تعذر حفظ المنتج');
+            appShell.showToast(details ? `${baseMessage}: ${details}` : baseMessage);
         } finally {
             appShell.setLoading(false);
         }
