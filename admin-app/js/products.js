@@ -303,7 +303,9 @@ const productsModule = (() => {
             appShell.showToast(translate('toastImageUploadSuccess', 'تم رفع الصورة بنجاح'));
         } catch (error) {
             console.error('Image upload failed', error);
-            appShell.showToast(translate('toastImageUploadError', 'تعذر رفع الصورة'));
+            const details = error?.response?.message || error?.message || '';
+            const baseMessage = translate('toastImageUploadError', 'تعذر رفع الصورة');
+            appShell.showToast(details ? `${baseMessage}: ${details}` : baseMessage);
             state.uploadingFileId = null;
             state.uploadingUrl = null;
             updatePreview(null);
