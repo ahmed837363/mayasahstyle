@@ -56,6 +56,23 @@ const productsModule = (() => {
         'description_en'
     ];
 
+    const attributeMap = {
+        current_stock: 'currentStock',
+        initial_stock: 'initialStock'
+    };
+
+    function getDocumentValue(doc, field) {
+        if (!doc) return undefined;
+        if (Object.prototype.hasOwnProperty.call(doc, field)) {
+            return doc[field];
+        }
+        const mapped = attributeMap[field];
+        if (mapped && Object.prototype.hasOwnProperty.call(doc, mapped)) {
+            return doc[mapped];
+        }
+        return undefined;
+    }
+
     const state = {
         items: [],
         search: '',
@@ -233,7 +250,7 @@ const productsModule = (() => {
             fields.forEach((field) => {
                 const input = selectors.editorForm.elements[field];
                 if (!input) return;
-                const value = product[field];
+                let value = getDocumentValue(product, field);
                 if (['price', 'discount', 'current_stock', 'initial_stock'].includes(field)) {
                     input.value = parseNumber(value);
                 } else {
@@ -328,6 +345,15 @@ const productsModule = (() => {
                 payload[field] = value || '';
             }
         });
+        // Align payload keys with Appwrite attributes
+        if (payload.current_stock !== undefined) {
+            payload.currentStock = payload.current_stock;
+            delete payload.current_stock;
+        }
+        if (payload.initial_stock !== undefined) {
+            payload.initialStock = payload.initial_stock;
+            delete payload.initial_stock;
+        }
         if (state.uploadingUrl) {
             payload.image = state.uploadingUrl;
             payload.imageId = state.uploadingFileId;
@@ -403,7 +429,7 @@ const productsModule = (() => {
         const lowStockCount = document.getElementById('statLowStock');
         if (activeCount) activeCount.textContent = state.items.length;
         if (lowStockCount) {
-            const lowStock = state.items.filter((item) => Number(item.current_stock || 0) <= 5).length;
+            const lowStock = state.items.filter((item) => Number(getDocumentValue(item, 'current_stock') || 0) <= 5).length;
             lowStockCount.textContent = lowStock;
         }
     }
