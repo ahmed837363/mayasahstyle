@@ -46,7 +46,7 @@ const authView = (() => {
 
         setLoading(true, 'جاري تسجيل الدخول...');
         try {
-            await appwriteClient.account.createEmailPasswordSession(email, password);
+            await appwriteClient.account.createEmailSession(email, password);
             showAlert('✅ تم تسجيل الدخول بنجاح!', 'success');
             setTimeout(() => (window.location.href = 'app.html'), 600);
         } catch (error) {

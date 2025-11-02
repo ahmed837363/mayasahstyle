@@ -26,7 +26,7 @@ loginForm.addEventListener('submit', async (e) => {
     
     try {
         // Try to login first
-        await account.createEmailPasswordSession(email, password);
+    await account.createEmailSession(email, password);
         const user = await account.get();
         localStorage.setItem('admin_user', JSON.stringify(user));
         showAlert('✅ تم تسجيل الدخول بنجاح!', 'success');
@@ -43,7 +43,7 @@ loginForm.addEventListener('submit', async (e) => {
                 // Now login with the new account
                 setTimeout(async () => {
                     try {
-                        await account.createEmailPasswordSession(email, password);
+                        await account.createEmailSession(email, password);
                         const user = await account.get();
                         localStorage.setItem('admin_user', JSON.stringify(user));
                         window.location.href = 'dashboard.html';
