@@ -7,6 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>تسجيل الدخول - مياسه ستايل</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -47,83 +48,16 @@
         </form>
         <div class="info">مصمم خصيصاً لإدارة منتجاتك</div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+    <script src="config.js"></script>
+    <script src="js/appwrite-client.js"></script>
+    <script src="js/auth.js"></script>
     <script>
-        const API = 'https://cloud.appwrite.io/v1';
-        const PROJECT = '68eb3e280039fdf7e677';
-        const form = document.getElementById('loginForm');
-        const alert = document.getElementById('alert');
-        const btn = document.getElementById('loginBtn');
-        
-        async function login(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="spinner"></div>';
-            
-            try {
-                const res = await fetch(`${API}/account/sessions/email`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Appwrite-Project': PROJECT },
-                    body: JSON.stringify({ email, password }),
-                    credentials: 'include'
-                });
-                
-                if (res.ok) {
-                    const session = await res.json();
-                    localStorage.setItem('sessionId', session.$id);
-                    showAlert('✅ تم تسجيل الدخول بنجاح!', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
-                } else if (res.status === 401) {
-                    await createAccount(email, password);
-                } else {
-                    const err = await res.json();
-                    showAlert('❌ ' + (err.message || 'فشل تسجيل الدخول'), 'error');
-                    resetBtn();
-                }
-            } catch (err) {
-                showAlert('❌ خطأ: ' + err.message, 'error');
-                resetBtn();
-            }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').catch(() => {});
+            });
         }
-        
-        async function createAccount(email, password) {
-            try {
-                btn.innerHTML = 'جاري إنشاء الحساب...';
-                const userId = 'u' + Date.now();
-                const res = await fetch(`${API}/account`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Appwrite-Project': PROJECT },
-                    body: JSON.stringify({ userId, email, password, name: 'مدير' }),
-                    credentials: 'include'
-                });
-                
-                if (res.ok) {
-                    showAlert('✅ تم إنشاء الحساب! جاري تسجيل الدخول...', 'success');
-                    setTimeout(() => login({ preventDefault: () => {} }), 2000);
-                } else {
-                    const err = await res.json();
-                    showAlert('❌ ' + (err.message || 'فشل إنشاء الحساب'), 'error');
-                    resetBtn();
-                }
-            } catch (err) {
-                showAlert('❌ خطأ: ' + err.message, 'error');
-                resetBtn();
-            }
-        }
-        
-        function showAlert(msg, type) {
-            alert.textContent = msg;
-            alert.className = 'alert ' + type;
-            alert.style.display = 'block';
-        }
-        
-        function resetBtn() {
-            btn.disabled = false;
-            btn.textContent = 'تسجيل الدخول';
-        }
-        
-        form.addEventListener('submit', login);
     </script>
 </body>
 </html>

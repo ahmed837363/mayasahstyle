@@ -4,5 +4,7 @@ const APPWRITE_CONFIG = {
     projectId: '68eb3e280039fdf7e677',
     databaseId: '68eb4036002db50c7171',
     productsCollectionId: 'products',
-    storageBucketId: 'product-images'
+    storageBucketId: 'product-images',
+    ordersCollectionId: 'orders',
+    dashboardPreferencesKey: 'mayasah_admin_theme'
 };

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - مياسه ستايل</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/products.css">
+</head>
+<body data-app="dashboard">
+    <header class="app-header">
+        <div class="app-header__title">
+            <span>🌸</span>
+            <span>مياسة برو</span>
+        </div>
+        <div class="app-header__actions">
+            <span class="badge" id="userBadge"></span>
+            <button class="icon-button" id="logoutBtn">تسجيل الخروج</button>
+        </div>
+    </header>
+
+    <div class="app-shell">
+        <main class="main-content">
+            <section id="view-products" class="view-section is-active">
+                <div class="section-header">
+                    <h2 class="section-title">إدارة المنتجات</h2>
+                    <button class="primary-button" id="addProductBtn">إضافة منتج</button>
+                </div>
+                <div class="products-toolbar">
+                    <div class="products-search">
+                        <input type="search" id="productsSearch" placeholder="ابحث عن منتج بالاسم أو SKU">
+                    </div>
+                    <div class="chip-toggle" id="categoryFilter">
+                        <button type="button" class="is-active" data-category="all">الكل</button>
+                        <button type="button" data-category="black">سوداء</button>
+                        <button type="button" data-category="color">ملونة</button>
+                        <button type="button" data-category="embroidery">مطرزة</button>
+                        <button type="button" data-category="modern">عصرية</button>
+                    </div>
+                </div>
+                <div class="products-grid" id="productsList"></div>
+                <div class="empty-state" id="productsEmptyState">
+                    <div class="empty-state__icon">🛒</div>
+                    <h3 class="empty-state__title">لا توجد منتجات بعد</h3>
+                    <p class="empty-state__subtitle">ابدأ بإضافة منتجاتك الأولى لتظهر في متجرك.</p>
+                    <button class="primary-button" id="emptyAddBtn">إضافة منتج جديد</button>
+                </div>
+            </section>
+
+            <section id="view-orders" class="view-section">
+                <div class="section-header">
+                    <h2 class="section-title">الطلبات</h2>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state__icon">📦</div>
+                    <h3 class="empty-state__title">متابعة الطلبات قيد التطوير</h3>
+                    <p class="empty-state__subtitle">سنضيف لوحة تفصيلية للطلبات قريباً. يمكنك ربط مجموعة بيانات الطلبات عبر Appwrite واستعراضها هنا.</p>
+                </div>
+            </section>
+
+            <section id="view-stats" class="view-section">
+                <div class="section-header">
+                    <h2 class="section-title">نظرة عامة</h2>
+                </div>
+                <div class="card-grid">
+                    <article class="surface-card">
+                        <div class="surface-card__header">
+                            <h3 class="surface-card__title">إجمالي المبيعات (الشهر)</h3>
+                        </div>
+                        <p class="surface-card__value">0 ر.س</p>
+                    </article>
+                    <article class="surface-card">
+                        <div class="surface-card__header">
+                            <h3 class="surface-card__title">المنتجات النشطة</h3>
+                        </div>
+                        <p class="surface-card__value" id="statActiveProducts">0</p>
+                    </article>
+                    <article class="surface-card">
+                        <div class="surface-card__header">
+                            <h3 class="surface-card__title">مخزون منخفض</h3>
+                        </div>
+                        <p class="surface-card__value" id="statLowStock">0</p>
+                    </article>
+                </div>
+            </section>
+
+            <section id="view-settings" class="view-section">
+                <div class="section-header">
+                    <h2 class="section-title">التخصيص</h2>
+                </div>
+                <article class="surface-card">
+                    <h3 class="surface-card__title">ألوان الواجهة</h3>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="primaryColor">اللون الرئيسي</label>
+                            <input type="color" id="primaryColor" value="#8a2d52">
+                        </div>
+                        <div class="form-field">
+                            <label for="secondaryColor">اللون الثانوي</label>
+                            <input type="color" id="secondaryColor" value="#c06c84">
+                        </div>
+                        <button type="button" class="secondary-button" id="resetTheme">إعادة الضبط</button>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="globalToast"></div>
+    <div class="loading-overlay" id="globalLoader">
+        <div class="loader"></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="bottom-nav__button is-active" data-nav="products">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h-2l-3 7v2h2v7h14v-7h2v-2l-3-7h-2l1 3h-9l1-3zm0 5h10v9h-10v-9z"/></svg>
+            <span>المنتجات</span>
+        </button>
+        <button class="bottom-nav__button" data-nav="orders">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h-2v16h18v-16h-2v14h-14v-14zm4-2h6v2h-6v-2zm-4 4h14v2h-14v-2zm0 4h14v2h-14v-2zm0 4h10v2h-10v-2z"/></svg>
+            <span>الطلبات</span>
+        </button>
+        <button class="bottom-nav__button" data-nav="stats">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 19h18v2h-18v-2zm2-10h3v8h-3v-8zm6-4h3v12h-3v-12zm6 8h3v4h-3v-4z"/></svg>
+            <span>الإحصائيات</span>
+        </button>
+        <button class="bottom-nav__button" data-nav="settings">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm9 4c0-.661-.078-1.306-.223-1.924l2.115-1.635-1.5-2.598-2.49.996c-.499-.438-1.044-.82-1.633-1.135l-.377-2.632h-3l-.377 2.632c-.589.315-1.134.697-1.633 1.135l-2.49-.996-1.5 2.598 2.115 1.635c-.145.618-.223 1.263-.223 1.924s.078 1.306.223 1.924l-2.115 1.635 1.5 2.598 2.49-.996c.499.438 1.044.82 1.633 1.135l.377 2.632h3l.377-2.632c.589-.315 1.134-.697 1.633-1.135l2.49.996 1.5-2.598-2.115-1.635c.145-.618.223-1.263.223-1.924z"/></svg>
+            <span>الإعدادات</span>
+        </button>
+    </nav>
+
+    <div class="product-editor" id="productEditor">
+        <div class="product-editor__panel">
+            <div class="product-editor__header">
+                <h3 class="product-editor__title" id="productEditorTitle"></h3>
+                <button class="close-button" type="button" data-close-editor>&times;</button>
+            </div>
+            <form id="productEditorForm" class="form-grid">
+                <div class="image-upload">
+                    <label for="productImage">صورة المنتج</label>
+                    <div class="image-upload__preview" id="productImagePreview"><span>لم يتم اختيار صورة</span></div>
+                    <input type="file" id="productImage" accept="image/*">
+                </div>
+                <div class="form-field">
+                    <label for="name_ar">اسم المنتج (عربي)</label>
+                    <input type="text" name="name_ar" id="name_ar" required>
+                </div>
+                <div class="form-field">
+                    <label for="name_en">اسم المنتج (English)</label>
+                    <input type="text" name="name_en" id="name_en">
+                </div>
+                <div class="form-field">
+                    <label for="sku">رمز المنتج (SKU)</label>
+                    <input type="text" name="sku" id="sku">
+                </div>
+                <div class="form-field">
+                    <label for="price">السعر</label>
+                    <input type="number" step="0.01" min="0" name="price" id="price" required>
+                </div>
+                <div class="form-field">
+                    <label for="discount">نسبة الخصم %</label>
+                    <input type="number" step="0.01" min="0" name="discount" id="discount">
+                </div>
+                <div class="form-field">
+                    <label for="current_stock">المخزون الحالي</label>
+                    <input type="number" min="0" name="current_stock" id="current_stock" required>
+                </div>
+                <div class="form-field">
+                    <label for="initial_stock">المخزون الابتدائي</label>
+                    <input type="number" min="0" name="initial_stock" id="initial_stock">
+                </div>
+                <div class="form-field">
+                    <label for="category">التصنيف</label>
+                    <select name="category" id="category">
+                        <option value="black">سوداء</option>
+                        <option value="color">ملونة</option>
+                        <option value="embroidery">مطرزة</option>
+                        <option value="modern">عصرية</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="badge">الشارة</label>
+                    <input type="text" name="badge" id="badge" placeholder="مثال: new">
+                </div>
+                <div class="form-field">
+                    <label for="description_ar">الوصف (عربي)</label>
+                    <textarea name="description_ar" id="description_ar" rows="3"></textarea>
+                </div>
+                <div class="form-field">
+                    <label for="description_en">الوصف (English)</label>
+                    <textarea name="description_en" id="description_en" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-button" data-close-editor>إلغاء</button>
+                    <button type="submit" class="primary-button">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+    <script src="config.js"></script>
+    <script src="js/appwrite-client.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').catch(() => {});
+            });
+        }
+        document.getElementById('emptyAddBtn')?.addEventListener('click', () => {
+            document.getElementById('addProductBtn')?.click();
+        });
+    </script>
+</body>
+</html>
