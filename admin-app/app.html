@@ -11,12 +11,13 @@
 <body data-app="dashboard">
     <header class="app-header">
         <div class="app-header__title">
-            <span>🌸</span>
-            <span>مياسة برو</span>
+            <span aria-hidden="true">🌸</span>
+            <span class="app-header__title-text" data-i18n="headerBrand">مياسة برو</span>
         </div>
         <div class="app-header__actions">
+            <button class="icon-button language-toggle" type="button" id="languageToggle" aria-label="التبديل إلى اللغة الإنجليزية">English</button>
             <span class="badge" id="userBadge"></span>
-            <button class="icon-button" id="logoutBtn">تسجيل الخروج</button>
+            <button class="icon-button" id="logoutBtn" data-i18n="headerLogout">تسجيل الخروج</button>
         </div>
     </header>
 
@@ -24,61 +25,61 @@
         <main class="main-content">
             <section id="view-products" class="view-section is-active">
                 <div class="section-header">
-                    <h2 class="section-title">إدارة المنتجات</h2>
-                    <button class="primary-button" id="addProductBtn">إضافة منتج</button>
+                    <h2 class="section-title" data-i18n="productsTitle">إدارة المنتجات</h2>
+                    <button class="primary-button" id="addProductBtn" data-i18n="addProduct">إضافة منتج</button>
                 </div>
                 <div class="products-toolbar">
                     <div class="products-search">
-                        <input type="search" id="productsSearch" placeholder="ابحث عن منتج بالاسم أو SKU">
+                        <input type="search" id="productsSearch" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن منتج بالاسم أو SKU">
                     </div>
                     <div class="chip-toggle" id="categoryFilter">
-                        <button type="button" class="is-active" data-category="all">الكل</button>
-                        <button type="button" data-category="black">سوداء</button>
-                        <button type="button" data-category="color">ملونة</button>
-                        <button type="button" data-category="embroidery">مطرزة</button>
-                        <button type="button" data-category="modern">عصرية</button>
+                        <button type="button" class="is-active" data-category="all" data-i18n="category_all">الكل</button>
+                        <button type="button" data-category="black" data-i18n="category_black">سوداء</button>
+                        <button type="button" data-category="color" data-i18n="category_color">ملونة</button>
+                        <button type="button" data-category="embroidery" data-i18n="category_embroidery">مطرزة</button>
+                        <button type="button" data-category="modern" data-i18n="category_modern">عصرية</button>
                     </div>
                 </div>
                 <div class="products-grid" id="productsList"></div>
                 <div class="empty-state" id="productsEmptyState">
                     <div class="empty-state__icon">🛒</div>
-                    <h3 class="empty-state__title">لا توجد منتجات بعد</h3>
-                    <p class="empty-state__subtitle">ابدأ بإضافة منتجاتك الأولى لتظهر في متجرك.</p>
-                    <button class="primary-button" id="emptyAddBtn">إضافة منتج جديد</button>
+                    <h3 class="empty-state__title" data-i18n="emptyTitle">لا توجد منتجات بعد</h3>
+                    <p class="empty-state__subtitle" data-i18n="emptySubtitle">ابدأ بإضافة منتجاتك الأولى لتظهر في متجرك.</p>
+                    <button class="primary-button" id="emptyAddBtn" data-i18n="emptyAdd">إضافة منتج جديد</button>
                 </div>
             </section>
 
             <section id="view-orders" class="view-section">
                 <div class="section-header">
-                    <h2 class="section-title">الطلبات</h2>
+                    <h2 class="section-title" data-i18n="ordersTitle">الطلبات</h2>
                 </div>
                 <div class="empty-state">
                     <div class="empty-state__icon">📦</div>
-                    <h3 class="empty-state__title">متابعة الطلبات قيد التطوير</h3>
-                    <p class="empty-state__subtitle">سنضيف لوحة تفصيلية للطلبات قريباً. يمكنك ربط مجموعة بيانات الطلبات عبر Appwrite واستعراضها هنا.</p>
+                    <h3 class="empty-state__title" data-i18n="ordersEmptyTitle">متابعة الطلبات قيد التطوير</h3>
+                    <p class="empty-state__subtitle" data-i18n="ordersEmptySubtitle">سنضيف لوحة تفصيلية للطلبات قريباً. يمكنك ربط مجموعة بيانات الطلبات عبر Appwrite واستعراضها هنا.</p>
                 </div>
             </section>
 
             <section id="view-stats" class="view-section">
                 <div class="section-header">
-                    <h2 class="section-title">نظرة عامة</h2>
+                    <h2 class="section-title" data-i18n="statsTitle">نظرة عامة</h2>
                 </div>
                 <div class="card-grid">
                     <article class="surface-card">
                         <div class="surface-card__header">
-                            <h3 class="surface-card__title">إجمالي المبيعات (الشهر)</h3>
+                            <h3 class="surface-card__title" data-i18n="statsSales">إجمالي المبيعات (الشهر)</h3>
                         </div>
-                        <p class="surface-card__value">0 ر.س</p>
+                        <p class="surface-card__value" id="statSalesValue" data-amount="0">0 ر.س</p>
                     </article>
                     <article class="surface-card">
                         <div class="surface-card__header">
-                            <h3 class="surface-card__title">المنتجات النشطة</h3>
+                            <h3 class="surface-card__title" data-i18n="statsActive">المنتجات النشطة</h3>
                         </div>
                         <p class="surface-card__value" id="statActiveProducts">0</p>
                     </article>
                     <article class="surface-card">
                         <div class="surface-card__header">
-                            <h3 class="surface-card__title">مخزون منخفض</h3>
+                            <h3 class="surface-card__title" data-i18n="statsLow">مخزون منخفض</h3>
                         </div>
                         <p class="surface-card__value" id="statLowStock">0</p>
                     </article>
@@ -87,20 +88,20 @@
 
             <section id="view-settings" class="view-section">
                 <div class="section-header">
-                    <h2 class="section-title">التخصيص</h2>
+                    <h2 class="section-title" data-i18n="settingsTitle">التخصيص</h2>
                 </div>
                 <article class="surface-card">
-                    <h3 class="surface-card__title">ألوان الواجهة</h3>
+                    <h3 class="surface-card__title" data-i18n="settingsCardTitle">ألوان الواجهة</h3>
                     <div class="form-grid">
                         <div class="form-field">
-                            <label for="primaryColor">اللون الرئيسي</label>
+                            <label for="primaryColor" data-i18n="settingsPrimary">اللون الرئيسي</label>
                             <input type="color" id="primaryColor" value="#8a2d52">
                         </div>
                         <div class="form-field">
-                            <label for="secondaryColor">اللون الثانوي</label>
+                            <label for="secondaryColor" data-i18n="settingsSecondary">اللون الثانوي</label>
                             <input type="color" id="secondaryColor" value="#c06c84">
                         </div>
-                        <button type="button" class="secondary-button" id="resetTheme">إعادة الضبط</button>
+                        <button type="button" class="secondary-button" id="resetTheme" data-i18n="settingsReset">إعادة الضبط</button>
                     </div>
                 </article>
             </section>
@@ -115,19 +116,19 @@
     <nav class="bottom-nav">
         <button class="bottom-nav__button is-active" data-nav="products">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h-2l-3 7v2h2v7h14v-7h2v-2l-3-7h-2l1 3h-9l1-3zm0 5h10v9h-10v-9z"/></svg>
-            <span>المنتجات</span>
+            <span data-i18n="nav_products">المنتجات</span>
         </button>
         <button class="bottom-nav__button" data-nav="orders">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h-2v16h18v-16h-2v14h-14v-14zm4-2h6v2h-6v-2zm-4 4h14v2h-14v-2zm0 4h14v2h-14v-2zm0 4h10v2h-10v-2z"/></svg>
-            <span>الطلبات</span>
+            <span data-i18n="nav_orders">الطلبات</span>
         </button>
         <button class="bottom-nav__button" data-nav="stats">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 19h18v2h-18v-2zm2-10h3v8h-3v-8zm6-4h3v12h-3v-12zm6 8h3v4h-3v-4z"/></svg>
-            <span>الإحصائيات</span>
+            <span data-i18n="nav_stats">الإحصائيات</span>
         </button>
         <button class="bottom-nav__button" data-nav="settings">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm9 4c0-.661-.078-1.306-.223-1.924l2.115-1.635-1.5-2.598-2.49.996c-.499-.438-1.044-.82-1.633-1.135l-.377-2.632h-3l-.377 2.632c-.589.315-1.134.697-1.633 1.135l-2.49-.996-1.5 2.598 2.115 1.635c-.145.618-.223 1.263-.223 1.924s.078 1.306.223 1.924l-2.115 1.635 1.5 2.598 2.49-.996c.499.438 1.044.82 1.633 1.135l.377 2.632h3l.377-2.632c.589-.315 1.134-.697 1.633-1.135l2.49.996 1.5-2.598-2.115-1.635c.145-.618.223-1.263.223-1.924z"/></svg>
-            <span>الإعدادات</span>
+            <span data-i18n="nav_settings">الإعدادات</span>
         </button>
     </nav>
 
@@ -139,62 +140,62 @@
             </div>
             <form id="productEditorForm" class="form-grid">
                 <div class="image-upload">
-                    <label for="productImage">صورة المنتج</label>
-                    <div class="image-upload__preview" id="productImagePreview"><span>لم يتم اختيار صورة</span></div>
+                    <label for="productImage" data-i18n="editorImageLabel">صورة المنتج</label>
+                    <div class="image-upload__preview" id="productImagePreview"><span data-i18n="editorNoImage">لم يتم اختيار صورة</span></div>
                     <input type="file" id="productImage" accept="image/*">
                 </div>
                 <div class="form-field">
-                    <label for="name_ar">اسم المنتج (عربي)</label>
+                    <label for="name_ar" data-i18n="editorNameAr">اسم المنتج (عربي)</label>
                     <input type="text" name="name_ar" id="name_ar" required>
                 </div>
                 <div class="form-field">
-                    <label for="name_en">اسم المنتج (English)</label>
+                    <label for="name_en" data-i18n="editorNameEn">اسم المنتج (English)</label>
                     <input type="text" name="name_en" id="name_en">
                 </div>
                 <div class="form-field">
-                    <label for="sku">رمز المنتج (SKU)</label>
+                    <label for="sku" data-i18n="editorSku">رمز المنتج (SKU)</label>
                     <input type="text" name="sku" id="sku">
                 </div>
                 <div class="form-field">
-                    <label for="price">السعر</label>
+                    <label for="price" data-i18n="editorPrice">السعر</label>
                     <input type="number" step="0.01" min="0" name="price" id="price" required>
                 </div>
                 <div class="form-field">
-                    <label for="discount">نسبة الخصم %</label>
+                    <label for="discount" data-i18n="editorDiscount">نسبة الخصم %</label>
                     <input type="number" step="0.01" min="0" name="discount" id="discount">
                 </div>
                 <div class="form-field">
-                    <label for="current_stock">المخزون الحالي</label>
+                    <label for="current_stock" data-i18n="editorCurrentStock">المخزون الحالي</label>
                     <input type="number" min="0" name="current_stock" id="current_stock" required>
                 </div>
                 <div class="form-field">
-                    <label for="initial_stock">المخزون الابتدائي</label>
+                    <label for="initial_stock" data-i18n="editorInitialStock">المخزون الابتدائي</label>
                     <input type="number" min="0" name="initial_stock" id="initial_stock">
                 </div>
                 <div class="form-field">
-                    <label for="category">التصنيف</label>
+                    <label for="category" data-i18n="editorCategory">التصنيف</label>
                     <select name="category" id="category">
-                        <option value="black">سوداء</option>
-                        <option value="color">ملونة</option>
-                        <option value="embroidery">مطرزة</option>
-                        <option value="modern">عصرية</option>
+                        <option value="black" data-i18n="categoryOption_black">سوداء</option>
+                        <option value="color" data-i18n="categoryOption_color">ملونة</option>
+                        <option value="embroidery" data-i18n="categoryOption_embroidery">مطرزة</option>
+                        <option value="modern" data-i18n="categoryOption_modern">عصرية</option>
                     </select>
                 </div>
                 <div class="form-field">
-                    <label for="badge">الشارة</label>
-                    <input type="text" name="badge" id="badge" placeholder="مثال: new">
+                    <label for="badge" data-i18n="editorBadge">الشارة</label>
+                    <input type="text" name="badge" id="badge" placeholder="مثال: new" data-i18n-placeholder="editorBadgePlaceholder">
                 </div>
                 <div class="form-field">
-                    <label for="description_ar">الوصف (عربي)</label>
+                    <label for="description_ar" data-i18n="editorDescriptionAr">الوصف (عربي)</label>
                     <textarea name="description_ar" id="description_ar" rows="3"></textarea>
                 </div>
                 <div class="form-field">
-                    <label for="description_en">الوصف (English)</label>
+                    <label for="description_en" data-i18n="editorDescriptionEn">الوصف (English)</label>
                     <textarea name="description_en" id="description_en" rows="3"></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="secondary-button" data-close-editor>إلغاء</button>
-                    <button type="submit" class="primary-button">حفظ</button>
+                    <button type="button" class="secondary-button" data-close-editor data-i18n="editorCancel">إلغاء</button>
+                    <button type="submit" class="primary-button" data-i18n="editorSave">حفظ</button>
                 </div>
             </form>
         </div>
@@ -202,6 +203,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <script src="config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/appwrite-client.js"></script>
     <script src="js/products.js"></script>
     <script src="js/app.js"></script>

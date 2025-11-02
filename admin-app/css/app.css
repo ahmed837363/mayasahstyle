@@ -79,6 +79,17 @@ body {
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
+.language-toggle {
+    min-width: 86px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.language-toggle.is-arabic {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
 .icon-button:hover,
 .icon-button:focus {
     transform: translateY(-2px);

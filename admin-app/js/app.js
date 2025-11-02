@@ -1,6 +1,6 @@
 'use strict';
 
-/* global appwriteClient, APPWRITE_CONFIG, productsModule */
+/* global appwriteClient, APPWRITE_CONFIG, productsModule, dashboardI18n */
 
 const appShell = (() => {
     const NAV_KEYS = ['products', 'orders', 'stats', 'settings'];
@@ -10,14 +10,21 @@ const appShell = (() => {
     const toast = document.getElementById('globalToast');
     const userBadge = document.getElementById('userBadge');
     const logoutBtn = document.getElementById('logoutBtn');
+    const languageToggle = document.getElementById('languageToggle');
     const primaryPicker = document.getElementById('primaryColor');
     const secondaryPicker = document.getElementById('secondaryColor');
     const resetThemeBtn = document.getElementById('resetTheme');
+    const statSalesValue = document.getElementById('statSalesValue');
+
+    const i18n = window.dashboardI18n;
 
     let activeView = 'products';
     let userProfile = null;
-
     async function init() {
+        registerLanguageToggle();
+        applyLanguage(getCurrentLanguage());
+        registerLanguageWatcher();
+
         const session = await appwriteClient.getSession();
         if (!session) {
             window.location.href = 'index.html';
@@ -30,6 +37,8 @@ const appShell = (() => {
         registerThemeControls();
         await setUserBadge();
         await productsModule.init();
+        productsModule.setLanguage?.(getCurrentLanguage());
+        updateSalesStatDisplay();
         switchView(activeView);
     }
 
@@ -64,7 +73,8 @@ const appShell = (() => {
             userBadge.textContent = '';
             return;
         }
-        userBadge.textContent = userProfile.email || 'مدير';
+        const fallback = i18n && typeof i18n.t === 'function' ? i18n.t('headerGreetingFallback') : 'مدير';
+        userBadge.textContent = userProfile.email || fallback;
     }
 
     function registerThemeControls() {
@@ -98,7 +108,7 @@ const appShell = (() => {
             view.classList.toggle('is-active', viewKey === key);
         });
         activeView = key;
-        if (key === 'products') {
+        if (key === 'products' && productsModule && typeof productsModule.onShow === 'function') {
             productsModule.onShow();
         }
     }
@@ -159,6 +169,93 @@ const appShell = (() => {
         } else {
             root.style.removeProperty('--rosa-secondary');
         }
+    }
+
+    function getCurrentLanguage() {
+        if (i18n && typeof i18n.getLanguage === 'function') {
+            return i18n.getLanguage();
+        }
+        return document.documentElement.lang || 'ar';
+    }
+
+    function registerLanguageWatcher() {
+        if (!i18n || typeof i18n.onChange !== 'function') return;
+        i18n.onChange((lang) => {
+            applyLanguage(lang);
+            productsModule.setLanguage?.(lang);
+            updateSalesStatDisplay();
+            setUserBadge();
+        });
+    }
+
+    function registerLanguageToggle() {
+        if (!languageToggle || !i18n || typeof i18n.setLanguage !== 'function') return;
+        languageToggle.addEventListener('click', () => {
+            const next = getCurrentLanguage() === 'ar' ? 'en' : 'ar';
+            i18n.setLanguage(next);
+        });
+    }
+
+    function applyLanguage(lang) {
+        if (!lang) return;
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.body?.setAttribute('data-lang', lang);
+        if (!i18n || typeof i18n.t !== 'function') return;
+
+        document.title = i18n.t('pageTitle') || document.title;
+
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+            const key = el.getAttribute('data-i18n');
+            if (!key) return;
+            const value = i18n.t(key);
+            if (value !== undefined) {
+                el.textContent = value;
+            }
+        });
+
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (!key) return;
+            const value = i18n.t(key);
+            if (value !== undefined) {
+                el.setAttribute('placeholder', value);
+            }
+        });
+
+        if (languageToggle) {
+            const buttonLabel = lang === 'ar' ? i18n.t('languageToggleToEnglish') : i18n.t('languageToggleToArabic');
+            const ariaLabel = lang === 'ar' ? i18n.t('languageToggleAriaEnglish') : i18n.t('languageToggleAriaArabic');
+            languageToggle.textContent = buttonLabel || '';
+            if (ariaLabel) {
+                languageToggle.setAttribute('aria-label', ariaLabel);
+            }
+            languageToggle.setAttribute('dir', lang === 'ar' ? 'ltr' : 'rtl');
+            languageToggle.classList.toggle('is-arabic', lang !== 'ar');
+        }
+
+        updateSalesStatDisplay();
+    }
+
+    function updateSalesStatDisplay() {
+        if (!statSalesValue) return;
+        let amount = Number(statSalesValue.dataset.amount);
+        if (Number.isNaN(amount)) {
+            amount = 0;
+        }
+        statSalesValue.dataset.amount = String(amount);
+        if (i18n && typeof i18n.t === 'function') {
+            const lang = getCurrentLanguage();
+            const formatted = amount.toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US', {
+                maximumFractionDigits: 0
+            });
+            const template = i18n.t('statsSalesValue', { value: formatted });
+            if (template) {
+                statSalesValue.textContent = template;
+                return;
+            }
+        }
+        statSalesValue.textContent = `${amount} ر.س`;
     }
 
     return {

@@ -1,8 +1,31 @@
 'use strict';
 
-/* global appwriteClient, APPWRITE_CONFIG, appShell */
+/* global appwriteClient, APPWRITE_CONFIG, appShell, dashboardI18n */
 
 const appwriteSdk = window.Appwrite;
+const i18n = window.dashboardI18n;
+
+function translate(key, fallback, params) {
+    if (i18n && typeof i18n.t === 'function') {
+        const value = i18n.t(key, params);
+        if (value !== undefined && value !== null && value !== key) {
+            return value;
+        }
+    }
+    if (!fallback) return key;
+    if (!params) return fallback;
+    return fallback.replace(/\{(\w+)\}/g, (match, token) => {
+        if (Object.prototype.hasOwnProperty.call(params, token)) {
+            return params[token];
+        }
+        return match;
+    });
+}
+
+function formatCurrency(value) {
+    const amount = Number(value || 0).toFixed(2);
+    return translate('productPrice', `${amount} ر.س`, { amount });
+}
 
 const productsModule = (() => {
     const selectors = {
@@ -39,8 +62,19 @@ const productsModule = (() => {
         category: 'all',
         editing: null,
         uploadingFileId: null,
-        uploadingUrl: null
+        uploadingUrl: null,
+        lang: (i18n && typeof i18n.getLanguage === 'function')
+            ? i18n.getLanguage()
+            : (document.documentElement.lang || 'ar')
     };
+
+    function getLocalizedName(product) {
+        if (!product) return '';
+        if (state.lang === 'en') {
+            return product.name_en || product.name_ar || '';
+        }
+        return product.name_ar || product.name_en || '';
+    }
 
     function parseNumber(value) {
         if (value === null || value === undefined) return 0;
@@ -63,6 +97,12 @@ const productsModule = (() => {
         selectors.editorForm?.addEventListener('submit', handleSubmit);
         selectors.imageInput?.addEventListener('change', handleImageSelect);
         selectors.chipFilter?.addEventListener('click', handleCategoryClick);
+
+        if (i18n && typeof i18n.onChange === 'function') {
+            i18n.onChange((lang) => setLanguage(lang));
+        }
+
+        setLanguage(state.lang, { skipRender: true });
         await loadProducts();
     }
 
@@ -78,7 +118,7 @@ const productsModule = (() => {
             renderProducts();
         } catch (error) {
             console.error('Failed to load products', error);
-            appShell.showToast('تعذر تحميل المنتجات');
+            appShell.showToast(translate('toastLoadProductsError', 'تعذر تحميل المنتجات'));
         } finally {
             appShell.setLoading(false);
         }
@@ -138,7 +178,8 @@ const productsModule = (() => {
         media.className = 'product-card__media';
         const img = document.createElement('img');
         img.src = product.image || 'https://via.placeholder.com/400x400?text=Product';
-        img.alt = product.name_ar || product.name_en || 'Product image';
+    const productName = getLocalizedName(product) || translate('productCardNoName', 'منتج بدون اسم');
+    img.alt = productName || 'Product image';
         media.appendChild(img);
         card.appendChild(media);
 
@@ -147,18 +188,18 @@ const productsModule = (() => {
 
         const title = document.createElement('h3');
         title.className = 'product-card__title';
-        title.textContent = product.name_ar || product.name_en || 'منتج بدون اسم';
+    title.textContent = productName;
 
         const priceRow = document.createElement('div');
         priceRow.className = 'product-card__meta';
 
         const price = document.createElement('span');
         price.className = 'product-card__price';
-        price.textContent = `${Number(product.price || 0).toFixed(2)} ر.س`;
+    price.textContent = formatCurrency(product.price);
 
         const stock = document.createElement('span');
         stock.className = 'product-card__stock';
-        stock.textContent = `المخزون: ${product.current_stock ?? 0}`;
+    stock.textContent = `${translate('productCardStock', 'المخزون')}: ${product.current_stock ?? 0}`;
 
         priceRow.append(price, stock);
 
@@ -167,12 +208,12 @@ const productsModule = (() => {
 
         const editBtn = document.createElement('button');
         editBtn.className = 'secondary-button';
-        editBtn.textContent = 'تعديل';
+    editBtn.textContent = translate('productCardEdit', 'تعديل');
         editBtn.addEventListener('click', () => openEditor(product));
 
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'danger-button';
-        deleteBtn.textContent = 'حذف';
+    deleteBtn.textContent = translate('productCardDelete', 'حذف');
         deleteBtn.addEventListener('click', () => confirmDelete(product));
 
         actions.append(editBtn, deleteBtn);
@@ -184,7 +225,6 @@ const productsModule = (() => {
     function openEditor(product) {
         if (!selectors.editor || !selectors.editorForm) return;
         state.editing = product || null;
-        selectors.editorTitle.textContent = product ? 'تعديل المنتج' : 'إضافة منتج جديد';
         selectors.editorForm.reset();
         state.uploadingFileId = null;
         state.uploadingUrl = product?.image || null;
@@ -202,6 +242,18 @@ const productsModule = (() => {
             });
         }
         selectors.editor.classList.add('is-visible');
+        refreshEditorLanguage();
+    }
+
+    function refreshEditorLanguage() {
+        if (!selectors.editorTitle) return;
+        const titleKey = state.editing ? 'editorEditTitle' : 'editorAddTitle';
+        const fallbackTitle = state.editing ? 'تعديل المنتج' : 'إضافة منتج جديد';
+        selectors.editorTitle.textContent = translate(titleKey, fallbackTitle);
+        const badgeInput = selectors.editorForm?.elements?.badge;
+        if (badgeInput) {
+            badgeInput.placeholder = translate('editorBadgePlaceholder', 'مثال: new');
+        }
     }
 
     function closeEditor() {
@@ -211,12 +263,16 @@ const productsModule = (() => {
         state.uploadingFileId = null;
         state.uploadingUrl = null;
         updatePreview(null);
+        refreshEditorLanguage();
     }
 
     function updatePreview(src) {
         if (!selectors.imagePreview) return;
         if (!src) {
-            selectors.imagePreview.innerHTML = '<span>لم يتم اختيار صورة</span>';
+            selectors.imagePreview.innerHTML = '';
+            const placeholder = document.createElement('span');
+            placeholder.textContent = translate('editorNoImage', 'لم يتم اختيار صورة');
+            selectors.imagePreview.appendChild(placeholder);
             return;
         }
         const img = document.createElement('img');
@@ -244,10 +300,10 @@ const productsModule = (() => {
             state.uploadingFileId = uploaded.$id;
             state.uploadingUrl = `${APPWRITE_CONFIG.endpoint}/storage/buckets/${APPWRITE_CONFIG.storageBucketId}/files/${uploaded.$id}/view?project=${APPWRITE_CONFIG.projectId}&mode=admin`;
             updatePreview(state.uploadingUrl);
-            appShell.showToast('تم رفع الصورة بنجاح');
+            appShell.showToast(translate('toastImageUploadSuccess', 'تم رفع الصورة بنجاح'));
         } catch (error) {
             console.error('Image upload failed', error);
-            appShell.showToast('تعذر رفع الصورة');
+            appShell.showToast(translate('toastImageUploadError', 'تعذر رفع الصورة'));
             state.uploadingFileId = null;
             state.uploadingUrl = null;
             updatePreview(null);
@@ -285,7 +341,7 @@ const productsModule = (() => {
                     state.editing.$id,
                     payload
                 );
-                appShell.showToast('تم تحديث المنتج');
+                appShell.showToast(translate('toastUpdateSuccess', 'تم تحديث المنتج'));
             } else {
                 await appwriteClient.databases.createDocument(
                     APPWRITE_CONFIG.databaseId,
@@ -293,20 +349,22 @@ const productsModule = (() => {
                     appwriteSdk.ID.unique(),
                     payload
                 );
-                appShell.showToast('تم إضافة المنتج');
+                appShell.showToast(translate('toastCreateSuccess', 'تم إضافة المنتج'));
             }
             await loadProducts();
             closeEditor();
         } catch (error) {
             console.error('Failed to save product', error);
-            appShell.showToast('تعذر حفظ المنتج');
+            appShell.showToast(translate('toastSaveError', 'تعذر حفظ المنتج'));
         } finally {
             appShell.setLoading(false);
         }
     }
 
     function confirmDelete(product) {
-        const confirmed = window.confirm(`هل تريد حذف المنتج "${product.name_ar || product.name_en}"؟`);
+        const productName = getLocalizedName(product) || product.name_ar || product.name_en || '';
+        const message = translate('confirmDelete', 'هل تريد حذف المنتج "{name}"؟', { name: productName });
+        const confirmed = window.confirm(message);
         if (!confirmed) return;
         deleteProduct(product.$id);
     }
@@ -319,11 +377,11 @@ const productsModule = (() => {
                 APPWRITE_CONFIG.productsCollectionId,
                 documentId
             );
-            appShell.showToast('تم حذف المنتج');
+            appShell.showToast(translate('toastDeleteSuccess', 'تم حذف المنتج'));
             await loadProducts();
         } catch (error) {
             console.error('Failed to delete product', error);
-            appShell.showToast('تعذر حذف المنتج');
+            appShell.showToast(translate('toastDeleteError', 'تعذر حذف المنتج'));
         } finally {
             appShell.setLoading(false);
         }
@@ -344,9 +402,25 @@ const productsModule = (() => {
         }
     }
 
+    function setLanguage(lang, options = {}) {
+        const normalized = lang === 'en' ? 'en' : 'ar';
+        const hasChanged = state.lang !== normalized;
+        state.lang = normalized;
+        refreshEditorLanguage();
+        updatePreview(state.uploadingUrl);
+        if (!options.skipRender && hasChanged) {
+            renderProducts();
+        }
+        if (options.force) {
+            renderProducts();
+        }
+        updateStats();
+    }
+
     return {
         init,
-        onShow
+        onShow,
+        setLanguage
     };
 })();
 
